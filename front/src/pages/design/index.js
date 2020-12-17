@@ -27,16 +27,35 @@ const initialElements = [
   {
     id: "1",
     type: "table",
+    data: {
+      name: 'wow, its a custom name',
+      columns: [
+        { name: "id", type: "INTEGER", pkey: true, ai: true },
+        { name: "someColumn", type: "INTEGER" },
+        { name: "someOtherColumn", type: "STRING" },
+      ]},
     position: { x: 100, y: 100 },
   },
   {
     id: "3",
     type: "table",
+    data: {
+      name: 'wow, its a custom name',
+      columns: [
+        { name: "id", type: "INTEGER", pkey: true, ai: true },
+        { name: "someColumn", type: "INTEGER" },
+        { name: "someOtherColumn", type: "STRING" },
+      ]},
     position: { x: 100, y: 500 },
   },
   {
     id: "2",
     type: "table",
+    data: {name: 'and, its a custom name', columns: [
+        { name: "id", type: "INTEGER", pkey: true, ai: true },
+        { name: "someColumn", type: "INTEGER" },
+        { name: "someOtherOtherColumn", type: "STRING" },
+      ]},
     position: { x: 600, y: 300 },
   },
   {
@@ -60,6 +79,7 @@ const initialElements = [
     arrowHeadType: "arrowclosed",
   },
 ];
+
 const nodeTypes = {
   table: Table,
 };

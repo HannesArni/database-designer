@@ -31,12 +31,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Table = ({ id }) => {
-  const [columns, setColumns] = useState([
-    { name: "id", type: "INTEGER", pkey: true, ai: true },
-    { name: "someColumn", type: "INTEGER", pkey: false, ai: false },
-    { name: "someOtherColumn", type: "STRING", pkey: false, ai: false },
-  ]);
+const Table = ({ id, data: {columns, name} }) => {
+  const setColumns = () => null;
   const onColumnChange = (newValue, index) => {
     setColumns((prevState) => {
       prevState[index] = newValue;
@@ -58,7 +54,7 @@ const Table = ({ id }) => {
       className={classes.root}
       subheader={
         <ListSubheader className={classes.listSubHeader}>
-          main_table
+          {name}
         </ListSubheader>
       }
     >
