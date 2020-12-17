@@ -1,0 +1,55 @@
+import React from "react";
+import Designer from "./pages/design";
+import {
+  createMuiTheme,
+  MuiThemeProvider,
+  useMediaQuery,
+} from "@material-ui/core";
+import { green, purple } from "@material-ui/core/colors";
+
+function App() {
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+
+  const theme = React.useMemo(() => {
+    const theme = createMuiTheme({
+      palette: {
+        primary: {
+          // Purple and green play nicely together.
+          main: purple[500],
+          contrastText: "#fff",
+        },
+        secondary: {
+          // This is green.A700 as hex.
+          main: green.A700,
+          contrastText: "#fff",
+        },
+        type: prefersDarkMode ? "dark" : "light",
+      },
+    });
+    theme.overrides = {
+      MuiListItem: {
+        root: {
+          color: theme.palette.text.primary,
+        },
+      },
+      MuiListSubheader: {
+        root: {
+          fontWeight: 600,
+        },
+      },
+      MuiFormControlLabel: {
+        root: {
+          color: theme.palette.text.secondary,
+        },
+      },
+    };
+    return theme;
+  }, [prefersDarkMode]);
+  return (
+    <MuiThemeProvider theme={theme}>
+      <Designer />
+    </MuiThemeProvider>
+  );
+}
+
+export default App;
