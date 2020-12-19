@@ -5,8 +5,9 @@ import ReactFlow, {
 } from "react-flow-renderer";
 import ContextMenu from "../../components/ContextMenu";
 import Table from "../../components/Table";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core";
+import TableContext from "../../context/tables";
 
 const useStyles = makeStyles((theme) => ({
   flowBackground: {
@@ -28,34 +29,39 @@ const initialElements = [
     id: "1",
     type: "table",
     data: {
-      name: 'wow, its a custom name',
+      name: "wow, its a custom name",
       columns: [
         { name: "id", type: "INTEGER", pkey: true, ai: true },
         { name: "someColumn", type: "INTEGER" },
         { name: "someOtherColumn", type: "STRING" },
-      ]},
+      ],
+    },
     position: { x: 100, y: 100 },
   },
   {
     id: "3",
     type: "table",
     data: {
-      name: 'wow, its a custom name',
+      name: "wow, its a custom name",
       columns: [
         { name: "id", type: "INTEGER", pkey: true, ai: true },
         { name: "someColumn", type: "INTEGER" },
         { name: "someOtherColumn", type: "STRING" },
-      ]},
+      ],
+    },
     position: { x: 100, y: 500 },
   },
   {
     id: "2",
     type: "table",
-    data: {name: 'and, its a custom name', columns: [
+    data: {
+      name: "and, its a custom name",
+      columns: [
         { name: "id", type: "INTEGER", pkey: true, ai: true },
         { name: "someColumn", type: "INTEGER" },
         { name: "someOtherOtherColumn", type: "STRING" },
-      ]},
+      ],
+    },
     position: { x: 600, y: 300 },
   },
   {
@@ -83,19 +89,69 @@ const initialElements = [
 const nodeTypes = {
   table: Table,
 };
+
 function Designer() {
   const classes = useStyles();
   const [elements, setElements] = useState(initialElements);
+  const [foreignKeySource, setForeignKeySource] = useState();
+  const addForeignKey = (target) => {
+    console.log(foreignKeySource, target);
+    setElements([
+      ...elements.map((el) =>
+        el.id === foreignKeySource.id
+          ? {
+              ...el,
+              data: {
+                ...el.data,
+                columns: el.data.columns.map((col, i) =>
+                  i === foreignKeySource.colId
+                    ? { ...col, foreignKey: true }
+                    : col
+                ),
+              },
+            }
+          : el
+      ),
+      {
+        id: `e${foreignKeySource.id}-${target.id}`,
+        source: foreignKeySource.id,
+        target: target.id,
+        sourceHandle: `o${foreignKeySource.colId}r`,
+        targetHandle: `i${target.colId}l`,
+        animated: true,
+        style: {
+          stroke: "#fff",
+        },
+        arrowHeadType: "arrowclosed",
+      },
+    ]);
+    setForeignKeySource(null);
+  };
+  const setTable = (newValue, tableId) => {
+    console.log("Running setTable");
+    console.log(newValue);
+    const elCopy = elements;
+    elCopy.map((el) => (el.id === tableId ? newValue : el));
+    setElements([...elCopy]);
+  };
   const getNextElementId = () =>
     Math.max(...elements.map((element) => parseInt(element.id))) + 1;
 
   const createNewTable = ({ xPos, yPos }) => {
     const id = getNextElementId();
+    // console.log(id);
     setElements([
       ...elements,
       {
-        id: id.toString(),
-        data: { label: `Node ${id}` },
+        id: "4",
+        data: {
+          name: "and, its a custom name",
+          columns: [
+            { name: "id", type: "INTEGER", pkey: true, ai: true },
+            { name: "someColumn", type: "INTEGER" },
+            { name: "someOtherOtherColumn", type: "STRING" },
+          ],
+        },
         type: "table",
         position: { x: xPos, y: yPos },
       },
@@ -122,20 +178,29 @@ function Designer() {
 
   return (
     <ReactFlowProvider>
-      <ReactFlow
-        elements={elements}
-        onContextMenu={onBackgroundContextOpen}
-        nodeTypes={nodeTypes}
+      <TableContext.Provider
+        value={{
+          setTable,
+          foreignKeySource,
+          setForeignKeySource,
+          addForeignKey,
+        }}
       >
-        <MiniMap className={classes.miniMap} />
-        <Background className={classes.flowBackground} />
-        <ContextMenu
-          pos={backgroundContextPos}
-          onClose={onBackgroundContextClose}
-          actions={backgroundContextActions}
-          open={backgroundContextOpen}
-        />
-      </ReactFlow>
+        <ReactFlow
+          elements={elements}
+          onContextMenu={onBackgroundContextOpen}
+          nodeTypes={nodeTypes}
+        >
+          <MiniMap className={classes.miniMap} />
+          <Background className={classes.flowBackground} />
+          <ContextMenu
+            pos={backgroundContextPos}
+            onClose={onBackgroundContextClose}
+            actions={backgroundContextActions}
+            open={backgroundContextOpen}
+          />
+        </ReactFlow>
+      </TableContext.Provider>
     </ReactFlowProvider>
   );
 }

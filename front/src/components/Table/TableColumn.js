@@ -35,6 +35,8 @@ import {
 } from "@material-ui/icons";
 import { Hashtag } from "../Icons";
 import { Handle } from "react-flow-renderer";
+import { useContext } from "react";
+import TableContext from "../../context/tables";
 
 const colTypes = [
   { type: "STRING", icon: <ShortText fontSize="inherit" /> },
@@ -89,7 +91,18 @@ const TableColumn = ({
   onClick,
   onColumnChange,
   colIndex,
+  tableId,
 }) => {
+  const { foreignKeySource, setForeignKeySource, addForeignKey } = useContext(
+    TableContext
+  );
+  const onColClick = () => {
+    if (foreignKeySource) {
+      addForeignKey({ id: tableId, colId: colIndex });
+    } else {
+      onClick();
+    }
+  };
   const classes = useStyles();
   const updateField = (field, value) =>
     onColumnChange({ ...column, [field]: value });
@@ -97,9 +110,14 @@ const TableColumn = ({
     updateField(event.target.name, event.target.value);
   const handleCheckboxChange = (event) =>
     updateField(event.target.name, event.target.checked);
+  const onFKeyChange = (event) =>
+    event.target.checked
+      ? setForeignKeySource({ id: tableId, colId: colIndex })
+      : null;
+
   return (
     <>
-      <ListItem button onClick={onClick}>
+      <ListItem button onClick={onColClick}>
         <ListItemText primary={column.name} style={{ marginRight: 20 }} />
         {column.pkey && (
           <VpnKey
@@ -240,7 +258,13 @@ const TableColumn = ({
               </FormControl>
               <FormControl>
                 <FormControlLabel
-                  control={<Checkbox color="primary" />}
+                  control={
+                    <Checkbox
+                      color="primary"
+                      checked={column.foreignKey}
+                      onChange={onFKeyChange}
+                    />
+                  }
                   labelPlacement="end"
                   label="Foreign key"
                   color="#fff"

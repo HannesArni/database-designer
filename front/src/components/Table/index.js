@@ -2,7 +2,8 @@ import { List, ListSubheader, Button, Box } from "@material-ui/core";
 import { Add } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import TableColumn from "./TableColumn";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import TableContext from "../../context/tables";
 import { Handle } from "react-flow-renderer";
 
 const useStyles = makeStyles((theme) => ({
@@ -31,20 +32,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Table = ({ id, data: {columns, name} }) => {
-  const setColumns = () => null;
+const Table = ({ id, data: table }) => {
+  console.log(table);
+  const { columns, name } = table;
+  const { setTable } = useContext(TableContext);
+
   const onColumnChange = (newValue, index) => {
-    setColumns((prevState) => {
-      prevState[index] = newValue;
-      return [...prevState];
-    });
+    const tableCopy = table;
+    tableCopy.columns[index] = newValue;
+    setTable(tableCopy, id);
   };
   const [editingColumn, setEditingColumn] = useState(null);
   const toggleEditingColumn = (index) =>
     editingColumn === index ? setEditingColumn(null) : setEditingColumn(index);
 
   const addColumn = () => {
-    setColumns([...columns, { name: "??" }]);
+    const tableCopy = table;
+    tableCopy.columns.push({ name: "??" });
+    setTable(tableCopy, id);
     setEditingColumn(columns.length);
   };
 
@@ -53,9 +58,7 @@ const Table = ({ id, data: {columns, name} }) => {
     <List
       className={classes.root}
       subheader={
-        <ListSubheader className={classes.listSubHeader}>
-          {name}
-        </ListSubheader>
+        <ListSubheader className={classes.listSubHeader}>{name}</ListSubheader>
       }
     >
       {columns.map((col, i) => (
@@ -67,6 +70,7 @@ const Table = ({ id, data: {columns, name} }) => {
           onColumnChange={(change) => onColumnChange(change, i)}
           colIndex={i}
           key={i}
+          tableId={id}
         />
       ))}
       <Box className={classes.addBox}>
