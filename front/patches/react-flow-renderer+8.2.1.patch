@@ -1,0 +1,110 @@
+diff --git a/node_modules/react-flow-renderer/dist/ReactFlow.esm.js b/node_modules/react-flow-renderer/dist/ReactFlow.esm.js
+index 0e66530..43c86e3 100644
+--- a/node_modules/react-flow-renderer/dist/ReactFlow.esm.js
++++ b/node_modules/react-flow-renderer/dist/ReactFlow.esm.js
+@@ -8542,7 +8542,7 @@ var getSourceTargetNodes = function (edge, nodes) {
+         if (node.id === edge.source) {
+             res.sourceNode = node;
+         }
+-        else if (node.id === edge.target) {
++        if (node.id === edge.target) {
+             res.targetNode = node;
+         }
+         return res;
+@@ -8571,8 +8571,39 @@ var Edge = function (_a) {
+     }
+     var edgeType = edge.type || 'default';
+     var EdgeComponent = props.edgeTypes[edgeType] || props.edgeTypes.default;
+-    var sourceHandle = getHandle(sourceNode.__rf.handleBounds.source, sourceHandleId);
+-    var targetHandle = getHandle(targetNode.__rf.handleBounds.target, targetHandleId);
++    const sourceNodeX = sourceNode.__rf.position.x;
++    const targetNodeX = targetNode.__rf.position.x;
++    var sourceHandleSide, targetHandleSide;
++    if(targetNodeX > sourceNodeX){
++      const displacement = targetNodeX - sourceNodeX - sourceNode.__rf.width
++      // Target is right of source
++      if(displacement - 50 < 0){
++        // Right : Right
++        sourceHandleSide = 'r';
++        targetHandleSide = 'r';
++      }
++      else{
++        // Right : Left
++        sourceHandleSide = 'r';
++        targetHandleSide = 'l';
++      }
++    }
++    else{
++      const displacement = sourceNodeX - targetNodeX - targetNode.__rf.width;
++      // Target is left of source
++      if(displacement - 50 < 0 ){
++        // Left : Left
++        sourceHandleSide = 'l';
++        targetHandleSide = 'l';
++      }
++      else{
++        // Left : Right
++        sourceHandleSide = 'l';
++        targetHandleSide = 'r';
++      }
++    }
++    var sourceHandle = getHandle(sourceNode.__rf.handleBounds.source, `o${sourceHandleId}${sourceHandleSide}`);
++    var targetHandle = getHandle(targetNode.__rf.handleBounds.target, `i${targetHandleId}${targetHandleSide}`);
+     var sourcePosition = sourceHandle ? sourceHandle.position : Position.Bottom;
+     var targetPosition = targetHandle ? targetHandle.position : Position.Top;
+     if (!sourceHandle) {
+diff --git a/node_modules/react-flow-renderer/dist/ReactFlow.js b/node_modules/react-flow-renderer/dist/ReactFlow.js
+index d779ab3..c7bebf0 100644
+--- a/node_modules/react-flow-renderer/dist/ReactFlow.js
++++ b/node_modules/react-flow-renderer/dist/ReactFlow.js
+@@ -8545,7 +8545,7 @@ var getSourceTargetNodes = function (edge, nodes) {
+         if (node.id === edge.source) {
+             res.sourceNode = node;
+         }
+-        else if (node.id === edge.target) {
++        if (node.id === edge.target) {
+             res.targetNode = node;
+         }
+         return res;
+@@ -8574,8 +8574,39 @@ var Edge = function (_a) {
+     }
+     var edgeType = edge.type || 'default';
+     var EdgeComponent = props.edgeTypes[edgeType] || props.edgeTypes.default;
+-    var sourceHandle = getHandle(sourceNode.__rf.handleBounds.source, sourceHandleId);
+-    var targetHandle = getHandle(targetNode.__rf.handleBounds.target, targetHandleId);
++    const sourceNodeX = sourceNode.__rf.position.x;
++    const targetNodeX = targetNode.__rf.position.x;
++    var sourceHandleSide, targetHandleSide;
++    if(targetNodeX > sourceNodeX){
++      const displacement = targetNodeX - sourceNodeX - sourceNode.__rf.width
++      // Target is right of source
++      if(displacement - 50 < 0){
++        // Right : Right
++        sourceHandleSide = 'r';
++        targetHandleSide = 'r';
++      }
++      else{
++        // Right : Left
++        sourceHandleSide = 'r';
++        targetHandleSide = 'l';
++      }
++    }
++    else{
++      const displacement = sourceNodeX - targetNodeX - targetNode.__rf.width;
++      // Target is left of source
++      if(displacement - 50 < 0 ){
++        // Left : Left
++        sourceHandleSide = 'l';
++        targetHandleSide = 'l';
++      }
++      else{
++        // Left : Right
++        sourceHandleSide = 'l';
++        targetHandleSide = 'r';
++      }
++    }
++    var sourceHandle = getHandle(sourceNode.__rf.handleBounds.source, `o${sourceHandleId}${sourceHandleSide}`);
++    var targetHandle = getHandle(targetNode.__rf.handleBounds.target, `i${targetHandleId}${targetHandleSide}`);
+     var sourcePosition = sourceHandle ? sourceHandle.position : exports.Position.Bottom;
+     var targetPosition = targetHandle ? targetHandle.position : exports.Position.Top;
+     if (!sourceHandle) {

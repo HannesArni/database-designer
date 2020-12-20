@@ -35,7 +35,7 @@ import {
 } from "@material-ui/icons";
 import { Hashtag } from "../Icons";
 import { Handle } from "react-flow-renderer";
-import { useContext } from "react";
+import { useContext, memo } from "react";
 import TableContext from "../../context/tables";
 
 const colTypes = [
@@ -96,7 +96,8 @@ const TableColumn = ({
   const { foreignKeySource, setForeignKeySource, addForeignKey } = useContext(
     TableContext
   );
-  const onColClick = () => {
+  const onColClick = (event) => {
+    event.stopPropagation();
     if (foreignKeySource) {
       addForeignKey({ id: tableId, colId: colIndex });
     } else {
@@ -117,7 +118,7 @@ const TableColumn = ({
 
   return (
     <>
-      <ListItem button onClick={onColClick}>
+      <ListItem button onClick={onColClick} style={{ zIndex: 11 }}>
         <ListItemText primary={column.name} style={{ marginRight: 20 }} />
         {column.pkey && (
           <VpnKey
@@ -136,20 +137,14 @@ const TableColumn = ({
         {column.type &&
           colTypes.filter(({ type }) => type === column.type)[0].icon}
         <Handle
-          id={`o${colIndex}r`}
-          position="right"
-          type="source"
-          className={classes.handle}
-        />
-        <Handle
           id={`i${colIndex}r`}
           position="right"
           type="target"
           className={classes.handle}
         />
         <Handle
-          id={`o${colIndex}l`}
-          position="left"
+          id={`o${colIndex}r`}
+          position="right"
           type="source"
           className={classes.handle}
         />
@@ -157,6 +152,12 @@ const TableColumn = ({
           id={`i${colIndex}l`}
           position="left"
           type="target"
+          className={classes.handle}
+        />
+        <Handle
+          id={`o${colIndex}l`}
+          position="left"
+          type="source"
           className={classes.handle}
         />
       </ListItem>
@@ -277,4 +278,4 @@ const TableColumn = ({
     </>
   );
 };
-export default TableColumn;
+export default memo(TableColumn);

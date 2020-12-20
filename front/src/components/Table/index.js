@@ -2,7 +2,7 @@ import { List, ListSubheader, Button, Box } from "@material-ui/core";
 import { Add } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import TableColumn from "./TableColumn";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, memo } from "react";
 import TableContext from "../../context/tables";
 import { Handle } from "react-flow-renderer";
 
@@ -33,7 +33,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Table = ({ id, data: table }) => {
-  console.log(table);
   const { columns, name } = table;
   const { setTable } = useContext(TableContext);
 
@@ -48,7 +47,10 @@ const Table = ({ id, data: table }) => {
 
   const addColumn = () => {
     const tableCopy = table;
-    tableCopy.columns.push({ name: "??" });
+    const colId =
+      Math.max(...Object.keys(tableCopy.columns).map((key) => parseInt(key))) +
+      1;
+    tableCopy.columns[colId] = { name: "??" };
     setTable(tableCopy, id);
     setEditingColumn(columns.length);
   };
@@ -61,16 +63,16 @@ const Table = ({ id, data: table }) => {
         <ListSubheader className={classes.listSubHeader}>{name}</ListSubheader>
       }
     >
-      {columns.map((col, i) => (
+      {Object.keys(columns).map((colId) => (
         <TableColumn
-          editing={editingColumn === i}
-          column={col}
-          name={col.name}
-          onClick={() => toggleEditingColumn(i)}
-          onColumnChange={(change) => onColumnChange(change, i)}
-          colIndex={i}
-          key={i}
+          editing={editingColumn === colId}
+          column={columns[colId]}
+          onClick={() => toggleEditingColumn(colId)}
+          onColumnChange={(change) => onColumnChange(change, colId)}
+          colIndex={colId}
+          key={colId}
           tableId={id}
+          style={{ zIndex: 11 }}
         />
       ))}
       <Box className={classes.addBox}>
@@ -79,4 +81,6 @@ const Table = ({ id, data: table }) => {
     </List>
   );
 };
-export default Table;
+export default memo(Table, (prevProps, nextProps) => {
+  return prevProps.id === nextProps.id && prevProps.data === nextProps.data;
+});

@@ -8,6 +8,7 @@ import Table from "../../components/Table";
 import { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core";
 import TableContext from "../../context/tables";
+import TableEdge from "../../components/CustomEdge/TableEdge";
 
 const useStyles = makeStyles((theme) => ({
   flowBackground: {
@@ -24,139 +25,128 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-const initialElements = [
-  {
-    id: "1",
-    type: "table",
-    data: {
-      name: "wow, its a custom name",
-      columns: [
-        { name: "id", type: "INTEGER", pkey: true, ai: true },
-        { name: "someColumn", type: "INTEGER" },
-        { name: "someOtherColumn", type: "STRING" },
-      ],
-    },
-    position: { x: 100, y: 100 },
-  },
-  {
-    id: "3",
-    type: "table",
-    data: {
-      name: "wow, its a custom name",
-      columns: [
-        { name: "id", type: "INTEGER", pkey: true, ai: true },
-        { name: "someColumn", type: "INTEGER" },
-        { name: "someOtherColumn", type: "STRING" },
-      ],
-    },
-    position: { x: 100, y: 500 },
-  },
-  {
-    id: "2",
-    type: "table",
-    data: {
-      name: "and, its a custom name",
-      columns: [
-        { name: "id", type: "INTEGER", pkey: true, ai: true },
-        { name: "someColumn", type: "INTEGER" },
-        { name: "someOtherOtherColumn", type: "STRING" },
-      ],
-    },
-    position: { x: 600, y: 300 },
-  },
-  {
-    id: "e1-2",
-    source: "1",
-    target: "2",
-    sourceHandle: "o2r",
-    targetHandle: "i0l",
-    animated: true,
-    style: { stroke: "#fff" },
-    arrowHeadType: "arrowclosed",
-  },
-  {
-    id: "e3-2",
-    source: "3",
-    target: "2",
-    sourceHandle: "o1r",
-    targetHandle: "i0l",
-    animated: true,
-    style: { stroke: "#fff" },
-    arrowHeadType: "arrowclosed",
-  },
-];
 
 const nodeTypes = {
   table: Table,
 };
+const edgeTypes = {
+  default: TableEdge,
+};
+const initalTableState = {
+  1: {
+    name: "columns",
+    columns: {
+      1: { name: "id", type: "INTEGER", pkey: true, ai: true },
+      2: { name: "tableId", type: "INTEGER", fkey: { table: 2, column: 1 } },
+      3: { name: "name", type: "STRING" },
+      4: { name: "type", type: "ENUM" },
+      5: { name: "length", type: "INTEGER" },
+      6: { name: "default", type: "STRING" },
+      7: { name: "pkey", type: "BOOLEAN" },
+      8: { name: "ai", type: "BOOLEAN" },
+      9: { name: "allowNull", type: "BOOLEAN" },
+      10: { name: "fkey", type: "INTEGER", fkey: { table: 1, column: 1 } },
+    },
+    position: { x: 100, y: 100 },
+  },
+  2: {
+    name: "tables",
+    columns: {
+      1: {
+        name: "id",
+        type: "INTEGER",
+        pkey: true,
+        ai: true,
+      },
+      2: {
+        name: "name",
+        type: "INTEGER",
+      },
+      3: {
+        name: "color",
+        type: "STRING",
+      },
+    },
+    position: {
+      x: 600,
+      y: 300,
+    },
+  },
+};
 
 function Designer() {
   const classes = useStyles();
-  const [elements, setElements] = useState(initialElements);
+  const [tables, setTables] = useState(initalTableState);
+  const [elements, setElements] = useState([]);
   const [foreignKeySource, setForeignKeySource] = useState();
   const addForeignKey = (target) => {
-    console.log(foreignKeySource, target);
-    setElements([
-      ...elements.map((el) =>
-        el.id === foreignKeySource.id
-          ? {
-              ...el,
-              data: {
-                ...el.data,
-                columns: el.data.columns.map((col, i) =>
-                  i === foreignKeySource.colId
-                    ? { ...col, foreignKey: true }
-                    : col
-                ),
-              },
-            }
-          : el
-      ),
-      {
-        id: `e${foreignKeySource.id}-${target.id}`,
-        source: foreignKeySource.id,
-        target: target.id,
-        sourceHandle: `o${foreignKeySource.colId}r`,
-        targetHandle: `i${target.colId}l`,
-        animated: true,
-        style: {
-          stroke: "#fff",
+    setTables({
+      ...tables,
+      [foreignKeySource.id]: {
+        ...tables[foreignKeySource.id],
+        columns: {
+          ...tables[foreignKeySource.id].columns,
+          [foreignKeySource.colId]: {
+            ...tables[foreignKeySource.id].columns[foreignKeySource.colId],
+            fkey: { table: target.id, column: target.colId },
+          },
         },
-        arrowHeadType: "arrowclosed",
       },
-    ]);
+    });
     setForeignKeySource(null);
   };
-  const setTable = (newValue, tableId) => {
-    console.log("Running setTable");
-    console.log(newValue);
-    const elCopy = elements;
-    elCopy.map((el) => (el.id === tableId ? newValue : el));
-    setElements([...elCopy]);
-  };
-  const getNextElementId = () =>
-    Math.max(...elements.map((element) => parseInt(element.id))) + 1;
+  const setTable = (newValue, tableId) =>
+    setTables({ ...tables, [tableId]: newValue });
+  const getNextElementId = (dict) =>
+    Math.max(...Object.keys(tables).map((key) => parseInt(key))) + 1;
 
   const createNewTable = ({ xPos, yPos }) => {
-    const id = getNextElementId();
-    // console.log(id);
-    setElements([
-      ...elements,
-      {
-        id: "4",
-        data: {
-          name: "and, its a custom name",
-          columns: [
-            { name: "id", type: "INTEGER", pkey: true, ai: true },
-            { name: "someColumn", type: "INTEGER" },
-            { name: "someOtherOtherColumn", type: "STRING" },
-          ],
+    const id = getNextElementId(tables);
+    setTables({
+      ...tables,
+      [id]: {
+        name: ".",
+        columns: {
+          1: { name: "id", type: "INTEGER", pkey: true, ai: true },
         },
-        type: "table",
         position: { x: xPos, y: yPos },
       },
-    ]);
+    });
   };
+
+  useEffect(() => {
+    const elTables = [];
+    const elFkeys = [];
+    Object.keys(tables).forEach((tableId) => {
+      const table = tables[tableId];
+      // display the table
+      elTables.push({
+        id: tableId.toString(),
+        type: "table",
+        position: table.position,
+        data: table,
+      });
+      // now, for the fkeys
+      Object.keys(table.columns).forEach((colId) => {
+        const col = table.columns[colId];
+        if (col.fkey) {
+          const target = col.fkey;
+          elFkeys.push({
+            id: `e${tableId}-${target.table}`,
+            source: tableId.toString(),
+            target: target.table.toString(),
+            sourceHandle: `${colId}`,
+            targetHandle: `${target.column}`,
+            animated: true,
+            style: { stroke: "#fff" },
+            arrowHeadType: "arrowclosed",
+          });
+        }
+      });
+    });
+    console.log(elTables, elFkeys);
+    setElements([...elTables, ...elFkeys]);
+  }, [tables]);
 
   const [backgroundContextPos, setBackgroundContextPos] = useState({
     x: null,
@@ -165,6 +155,7 @@ function Designer() {
   const [backgroundContextOpen, setBackgroundContextOpen] = useState(false);
   const onBackgroundContextOpen = (e) => {
     e.preventDefault();
+    console.log(e);
     setBackgroundContextPos({ x: e.pageX, y: e.pageY });
     setBackgroundContextOpen(true);
   };
@@ -190,6 +181,7 @@ function Designer() {
           elements={elements}
           onContextMenu={onBackgroundContextOpen}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
         >
           <MiniMap className={classes.miniMap} />
           <Background className={classes.flowBackground} />
