@@ -53,7 +53,7 @@ const Table = ({ id, data: table }) => {
       1;
     tableCopy.columns[colId] = { name: "??" };
     setTable(tableCopy, id);
-    setEditingColumn(columns.length);
+    setEditingColumn(Object.keys(columns).length);
   };
 
   const classes = useStyles();
@@ -92,7 +92,11 @@ const Table = ({ id, data: table }) => {
           />
         ))}
         <Box className={classes.addBox}>
-          <Add fontSize={"small"} className={classes.add} onClick={addColumn} />
+          <Add
+            fontSize={"small"}
+            className={[classes.add, "nodrag"]}
+            onClick={addColumn}
+          />
         </Box>
       </List>
     </>

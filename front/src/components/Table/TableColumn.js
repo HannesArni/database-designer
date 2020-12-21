@@ -134,6 +134,7 @@ const TableColumn = ({
           position: "relative",
           backgroundColor: theme.palette.background.paper,
         }}
+        className="nodrag"
       >
         <ListItemText primary={column.name} style={{ marginRight: 20 }} />
         {column.pkey && (
@@ -178,7 +179,7 @@ const TableColumn = ({
         />
       </ListItem>
 
-      <Collapse in={editing} timeout="auto" unmountOnExit>
+      <Collapse in={editing} timeout="auto" unmountOnExit className="nodrag">
         <List style={{ backgroundColor: "#282828" }}>
           <ListItem>
             <TextField

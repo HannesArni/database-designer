@@ -6,7 +6,7 @@ import ReactFlow, {
 import ContextMenu from "../../components/ContextMenu";
 import Table from "../../components/Table";
 import { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import TableContext from "../../context/tables";
 import TableEdge from "../../components/CustomEdge/TableEdge";
 
@@ -23,6 +23,23 @@ const useStyles = makeStyles((theme) => ({
       fill: theme.palette.background.paper,
       stroke: "#00000000",
     },
+  },
+  heading: {
+    marginTop: "1rem",
+    color: theme.palette.text.primary,
+  },
+  subHeading: {
+    color: theme.palette.text.secondary,
+  },
+  selectFKBg: {
+    position: "fixed",
+    zIndex: 2,
+    backgroundColor: "#00000080",
+    width: "100%",
+    height: "100%",
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "center",
   },
 }));
 
@@ -215,14 +232,17 @@ function Designer() {
           />
           <div
             style={{
-              display: FKSource ? "block" : "none",
-              position: "fixed",
-              zIndex: 2,
-              backgroundColor: "#00000080",
-              width: "100%",
-              height: "100%",
+              display: FKSource ? "flex" : "none",
             }}
-          />
+            className={classes.selectFKBg}
+          >
+            <Typography variant="h5" className={classes.heading}>
+              Select foreign key target
+            </Typography>
+            <Typography variant="h6" className={classes.subHeading}>
+              Esc to cancel
+            </Typography>
+          </div>
         </ReactFlow>
       </TableContext.Provider>
     </ReactFlowProvider>
