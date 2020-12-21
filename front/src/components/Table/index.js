@@ -51,7 +51,7 @@ const Table = ({ id, data: table }) => {
     const colId =
       Math.max(...Object.keys(tableCopy.columns).map((key) => parseInt(key))) +
       1;
-    tableCopy.columns[colId] = { name: "??" };
+    tableCopy.columns[colId] = { name: "??", allowNull: true };
     setTable(tableCopy, id);
     setEditingColumn(Object.keys(columns).length);
   };

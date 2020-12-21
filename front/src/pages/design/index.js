@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
   selectFKBg: {
     position: "fixed",
     zIndex: 2,
-    backgroundColor: "#00000080",
+    backgroundColor: "#00000060",
     width: "100%",
     height: "100%",
     flexDirection: "column",
@@ -53,16 +53,26 @@ const initalTableState = {
   1: {
     name: "columns",
     columns: {
-      1: { name: "id", type: "INTEGER", pkey: true, ai: true },
-      2: { name: "tableId", type: "INTEGER", fkey: { table: 2, column: 1 } },
-      3: { name: "name", type: "STRING" },
-      4: { name: "type", type: "ENUM" },
-      5: { name: "length", type: "INTEGER" },
-      6: { name: "default", type: "STRING" },
-      7: { name: "pkey", type: "BOOLEAN" },
-      8: { name: "ai", type: "BOOLEAN" },
-      9: { name: "allowNull", type: "BOOLEAN" },
-      10: { name: "fkey", type: "INTEGER", fkey: { table: 1, column: 1 } },
+      1: { name: "id", type: "INTEGER", pkey: true, ai: true, allowNull: true },
+      2: {
+        name: "tableId",
+        type: "INTEGER",
+        fkey: { table: 2, column: 1 },
+        allowNull: true,
+      },
+      3: { name: "name", type: "STRING", allowNull: true },
+      4: { name: "type", type: "ENUM", allowNull: true },
+      5: { name: "length", type: "INTEGER", allowNull: true },
+      6: { name: "default", type: "STRING", allowNull: true },
+      7: { name: "pkey", type: "BOOLEAN", allowNull: true },
+      8: { name: "ai", type: "BOOLEAN", allowNull: true },
+      9: { name: "allowNull", type: "BOOLEAN", allowNull: true },
+      10: {
+        name: "fkey",
+        type: "INTEGER",
+        fkey: { table: 1, column: 1 },
+        allowNull: true,
+      },
     },
     position: { x: 100, y: 100 },
   },
@@ -74,14 +84,17 @@ const initalTableState = {
         type: "INTEGER",
         pkey: true,
         ai: true,
+        allowNull: true,
       },
       2: {
         name: "name",
         type: "INTEGER",
+        allowNull: true,
       },
       3: {
         name: "color",
         type: "STRING",
+        allowNull: true,
       },
     },
     position: {
@@ -176,13 +189,11 @@ function Designer() {
             sourceHandle: `${colId}`,
             targetHandle: `${target.column}`,
             animated: true,
-            style: { stroke: "#fff" },
             arrowHeadType: "arrowclosed",
           });
         }
       });
     });
-    console.log(elTables, elFkeys);
     setElements([...elTables, ...elFkeys]);
   }, [tables]);
 
@@ -193,7 +204,6 @@ function Designer() {
   const [backgroundContextOpen, setBackgroundContextOpen] = useState(false);
   const onBackgroundContextOpen = (e) => {
     e.preventDefault();
-    console.log(e);
     setBackgroundContextPos({ x: e.pageX, y: e.pageY });
     setBackgroundContextOpen(true);
   };

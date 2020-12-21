@@ -1,5 +1,6 @@
 import React from "react";
 import { getMarkerEnd, getEdgeCenter } from "react-flow-renderer";
+import { useTheme } from "@material-ui/core";
 
 function getBezierPath({
   sourceX,
@@ -50,6 +51,7 @@ const TableEdge = ({
   arrowHeadType,
   markerEndId,
 }) => {
+  const theme = useTheme();
   const edgePath = getBezierPath({
     sourceX,
     sourceY,
@@ -63,7 +65,8 @@ const TableEdge = ({
     <>
       <path
         id={id}
-        style={style}
+        style={{ ...style }}
+        stroke={theme.palette.text.primary}
         className="react-flow__edge-path"
         d={edgePath}
         markerEnd={markerEnd}

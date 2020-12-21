@@ -24,6 +24,9 @@ function App() {
           contrastText: "#fff",
         },
         type: prefersDarkMode ? "dark" : "light",
+        background: {
+          paperAlt: prefersDarkMode ? "#272727" : "#f5f5f5",
+        },
       },
     });
     theme.overrides = {

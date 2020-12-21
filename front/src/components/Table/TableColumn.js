@@ -33,7 +33,7 @@ import {
   CalendarToday,
   TextRotateUpRounded,
 } from "@material-ui/icons";
-import { Hashtag } from "../Icons";
+import { Hashtag, Unique, NoNull } from "../Icons";
 import { Handle } from "react-flow-renderer";
 import { useContext, memo } from "react";
 import TableContext from "../../context/tables";
@@ -151,6 +151,20 @@ const TableColumn = ({
             style={{ marginRight: 10 }}
           />
         )}
+        {column.unique && (
+          <Unique
+            fontSize="small"
+            color={theme.palette.primary.main}
+            style={{ marginRight: 10 }}
+          />
+        )}
+        {!column.allowNull && (
+          <NoNull
+            fontSize="small"
+            color={theme.palette.primary.main}
+            style={{ marginRight: 10 }}
+          />
+        )}
         {column.type &&
           colTypes.filter(({ type }) => type === column.type)[0].icon}
         <Handle
@@ -180,7 +194,7 @@ const TableColumn = ({
       </ListItem>
 
       <Collapse in={editing} timeout="auto" unmountOnExit className="nodrag">
-        <List style={{ backgroundColor: "#282828" }}>
+        <List style={{ backgroundColor: theme.palette.background.paperAlt }}>
           <ListItem>
             <TextField
               label="Column name"
@@ -234,7 +248,7 @@ const TableColumn = ({
                   control={
                     <Checkbox
                       color="primary"
-                      checked={column.pkey}
+                      checked={column.pkey ?? false}
                       name="pkey"
                       onChange={handleCheckboxChange}
                     />
@@ -248,7 +262,7 @@ const TableColumn = ({
                   control={
                     <Checkbox
                       color="primary"
-                      checked={column.ai}
+                      checked={column.ai ?? false}
                       name="ai"
                       onChange={handleCheckboxChange}
                     />
@@ -260,7 +274,14 @@ const TableColumn = ({
               </FormControl>
               <FormControl>
                 <FormControlLabel
-                  control={<Checkbox color="primary" />}
+                  control={
+                    <Checkbox
+                      color="primary"
+                      checked={column.allowNull ?? false}
+                      onChange={handleCheckboxChange}
+                      name="allowNull"
+                    />
+                  }
                   labelPlacement="end"
                   label="Allow null"
                   color="#fff"
@@ -268,7 +289,14 @@ const TableColumn = ({
               </FormControl>
               <FormControl>
                 <FormControlLabel
-                  control={<Checkbox color="primary" />}
+                  control={
+                    <Checkbox
+                      color="primary"
+                      checked={column.unique ?? ""}
+                      onChange={handleCheckboxChange}
+                      name="unique"
+                    />
+                  }
                   labelPlacement="end"
                   label="Unique"
                   color="#fff"
@@ -279,7 +307,7 @@ const TableColumn = ({
                   control={
                     <Checkbox
                       color="primary"
-                      checked={!!column.fkey}
+                      checked={column.fkey ?? false}
                       indeterminate={currColIsSource}
                       onChange={onFKeyChange}
                     />
