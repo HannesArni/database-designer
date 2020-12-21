@@ -93,11 +93,14 @@ const TableColumn = ({
   colIndex,
   tableId,
 }) => {
-  const { foreignKeySource, setForeignKeySource, addForeignKey } = useContext(
-    TableContext
-  );
+  const theme = useTheme();
+  const {
+    foreignKeySource,
+    setForeignKeySource,
+    addForeignKey,
+    removeFK,
+  } = useContext(TableContext);
   const onColClick = (event) => {
-    event.stopPropagation();
     if (foreignKeySource) {
       addForeignKey({ id: tableId, colId: colIndex });
     } else {
@@ -114,11 +117,24 @@ const TableColumn = ({
   const onFKeyChange = (event) =>
     event.target.checked
       ? setForeignKeySource({ id: tableId, colId: colIndex })
-      : null;
+      : removeFK({ table: tableId, column: colIndex });
+
+  const currColIsSource =
+    foreignKeySource &&
+    foreignKeySource.id === tableId &&
+    foreignKeySource.colId === colIndex;
 
   return (
     <>
-      <ListItem button onClick={onColClick} style={{ zIndex: 11 }}>
+      <ListItem
+        button
+        onClick={onColClick}
+        style={{
+          ...(!currColIsSource && { zIndex: 11 }),
+          position: "relative",
+          backgroundColor: theme.palette.background.paper,
+        }}
+      >
         <ListItemText primary={column.name} style={{ marginRight: 20 }} />
         {column.pkey && (
           <VpnKey
@@ -262,7 +278,8 @@ const TableColumn = ({
                   control={
                     <Checkbox
                       color="primary"
-                      checked={column.foreignKey}
+                      checked={!!column.fkey}
+                      indeterminate={currColIsSource}
                       onChange={onFKeyChange}
                     />
                   }

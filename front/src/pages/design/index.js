@@ -78,27 +78,48 @@ function Designer() {
   const classes = useStyles();
   const [tables, setTables] = useState(initalTableState);
   const [elements, setElements] = useState([]);
-  const [foreignKeySource, setForeignKeySource] = useState();
-  const addForeignKey = (target) => {
-    setTables({
+  const [FKSource, setFKSource] = useState();
+  const setTable = (newValue, tableId) => {
+    setTables((prevValue) => ({
+      ...prevValue,
+      [tableId]: { ...prevValue[tableId], ...newValue },
+    }));
+  };
+  const setColumn = (newValue, tableId, columnId) => {
+    setTables((tables) => ({
       ...tables,
-      [foreignKeySource.id]: {
-        ...tables[foreignKeySource.id],
+      [tableId]: {
+        ...tables[tableId],
         columns: {
-          ...tables[foreignKeySource.id].columns,
-          [foreignKeySource.colId]: {
-            ...tables[foreignKeySource.id].columns[foreignKeySource.colId],
-            fkey: { table: target.id, column: target.colId },
+          ...tables[tableId].columns,
+          [columnId]: {
+            ...tables[tableId].columns[columnId],
+            ...newValue,
           },
         },
       },
-    });
-    setForeignKeySource(null);
+    }));
   };
-  const setTable = (newValue, tableId) =>
-    setTables({ ...tables, [tableId]: newValue });
+  const removeFK = ({ table, column }) =>
+    setColumn({ fkey: null }, parseInt(table), parseInt(column));
+
+  const addForeignKey = ({ id, colId }) => {
+    const sTable = tables[FKSource.id];
+    const sameTableFK = Object.keys(sTable.columns).filter(
+      (colId) => sTable.columns[colId]?.fkey?.table === parseInt(id)
+    )[0];
+    if (sameTableFK) removeFK({ table: FKSource.id, column: sameTableFK });
+
+    setColumn(
+      { fkey: { table: parseInt(id), column: parseInt(colId) } },
+      FKSource.id,
+      FKSource.colId
+    );
+    setFKSource(null);
+  };
+
   const getNextElementId = (dict) =>
-    Math.max(...Object.keys(tables).map((key) => parseInt(key))) + 1;
+    Math.max(...Object.keys(dict).map((key) => parseInt(key))) + 1;
 
   const createNewTable = ({ xPos, yPos }) => {
     const id = getNextElementId(tables);
@@ -172,9 +193,10 @@ function Designer() {
       <TableContext.Provider
         value={{
           setTable,
-          foreignKeySource,
-          setForeignKeySource,
+          foreignKeySource: FKSource,
+          setForeignKeySource: setFKSource,
           addForeignKey,
+          removeFK,
         }}
       >
         <ReactFlow
@@ -190,6 +212,16 @@ function Designer() {
             onClose={onBackgroundContextClose}
             actions={backgroundContextActions}
             open={backgroundContextOpen}
+          />
+          <div
+            style={{
+              display: FKSource ? "block" : "none",
+              position: "fixed",
+              zIndex: 2,
+              backgroundColor: "#00000080",
+              width: "100%",
+              height: "100%",
+            }}
           />
         </ReactFlow>
       </TableContext.Provider>

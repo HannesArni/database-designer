@@ -4,7 +4,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import TableColumn from "./TableColumn";
 import { useContext, useEffect, useState, memo } from "react";
 import TableContext from "../../context/tables";
-import { Handle } from "react-flow-renderer";
+import ReactFlow, { Handle } from "react-flow-renderer";
+import ContextMenu from "../ContextMenu";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Table = ({ id, data: table }) => {
   const { columns, name } = table;
-  const { setTable } = useContext(TableContext);
+  const { setTable, foreignKeySource } = useContext(TableContext);
 
   const onColumnChange = (newValue, index) => {
     const tableCopy = table;
@@ -57,28 +58,44 @@ const Table = ({ id, data: table }) => {
 
   const classes = useStyles();
   return (
-    <List
-      className={classes.root}
-      subheader={
-        <ListSubheader className={classes.listSubHeader}>{name}</ListSubheader>
-      }
-    >
-      {Object.keys(columns).map((colId) => (
-        <TableColumn
-          editing={editingColumn === colId}
-          column={columns[colId]}
-          onClick={() => toggleEditingColumn(colId)}
-          onColumnChange={(change) => onColumnChange(change, colId)}
-          colIndex={colId}
-          key={colId}
-          tableId={id}
-          style={{ zIndex: 11 }}
+    <>
+      {foreignKeySource && (
+        <div
+          style={{
+            position: "absolute",
+            zIndex: 10,
+            backgroundColor: "#00000080",
+            width: "100%",
+            height: "100%",
+          }}
         />
-      ))}
-      <Box className={classes.addBox}>
-        <Add fontSize={"small"} className={classes.add} onClick={addColumn} />
-      </Box>
-    </List>
+      )}
+      <List
+        className={classes.root}
+        subheader={
+          <ListSubheader className={classes.listSubHeader}>
+            {name}
+          </ListSubheader>
+        }
+        style={{ position: "relative", zIndex: "unset" }}
+      >
+        {Object.keys(columns).map((colId) => (
+          <TableColumn
+            editing={editingColumn === colId}
+            column={columns[colId]}
+            onClick={() => toggleEditingColumn(colId)}
+            onColumnChange={(change) => onColumnChange(change, colId)}
+            colIndex={colId}
+            key={colId}
+            tableId={id}
+            style={{ zIndex: 11 }}
+          />
+        ))}
+        <Box className={classes.addBox}>
+          <Add fontSize={"small"} className={classes.add} onClick={addColumn} />
+        </Box>
+      </List>
+    </>
   );
 };
 export default memo(Table, (prevProps, nextProps) => {
