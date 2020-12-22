@@ -53,7 +53,8 @@ const Table = ({ id, data: table }) => {
       1;
     tableCopy.columns[colId] = { name: "??", allowNull: true };
     setTable(tableCopy, id);
-    setEditingColumn(Object.keys(columns).length);
+    console.log(Object.keys(columns));
+    setEditingColumn(Object.keys(columns)[-1]);
   };
 
   const classes = useStyles();
