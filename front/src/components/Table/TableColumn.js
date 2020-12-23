@@ -12,11 +12,23 @@ import { useContext, memo } from "react";
 import TableContext from "../../context/tables";
 import { colTypes } from "../../constants";
 import ColumnControls from "./ColumnControls";
-import CustomCollapse from "../CustomCollapse";
 
 const useStyles = makeStyles((theme) => ({
+  column: {
+    position: "relative",
+    backgroundColor: theme.palette.background.paper,
+  },
+  sourceColumn: {
+    zIndex: 11,
+  },
+  columnName: {
+    marginRight: 20,
+  },
   handle: {
     opacity: 0,
+  },
+  icon: {
+    marginRight: 10,
   },
 }));
 
@@ -25,88 +37,82 @@ const TableColumn = ({
   column,
   onClick,
   onColumnChange,
-  colIndex,
+  colId,
   tableId,
 }) => {
   const theme = useTheme();
   const { foreignKeySource, addForeignKey } = useContext(TableContext);
-  const onColClick = (event) => {
+  const onColClick = () => {
     if (foreignKeySource) {
-      addForeignKey({ id: tableId, colId: colIndex });
+      addForeignKey({ id: tableId, colId: colId });
     } else {
-      onClick();
+      onClick(colId);
     }
   };
   const classes = useStyles();
+  const handleColumnChange = (changes) => onColumnChange(changes, colId);
 
   const currColIsSource =
     foreignKeySource &&
     foreignKeySource.id === tableId &&
-    foreignKeySource.colId === colIndex;
+    foreignKeySource.colId === colId;
 
   return (
     <>
       <ListItem
         button
         onClick={onColClick}
-        style={{
-          ...(!currColIsSource && { zIndex: 11 }),
-          position: "relative",
-          backgroundColor: theme.palette.background.paper,
-        }}
-        className="nodrag"
+        className={`nodrag ${classes.column} ${
+          !currColIsSource && classes.sourceColumn
+        }`}
       >
-        <ListItemText primary={column.name} style={{ marginRight: 20 }} />
+        <ListItemText primary={column.name} className={classes.columnName} />
         {column.pkey && (
-          <VpnKey
-            fontSize="small"
-            color="primary"
-            style={{ marginRight: 10 }}
-          />
+          <VpnKey fontSize="small" color="primary" className={classes.icon} />
         )}
         {column.ai && (
           <TextRotateUpRounded
             fontSize="small"
             color="primary"
-            style={{ marginRight: 10 }}
+            className={classes.icon}
           />
         )}
         {column.unique && (
           <Unique
             fontSize="small"
             color={theme.palette.primary.main}
-            style={{ marginRight: 10 }}
+            className={classes.icon}
           />
         )}
         {!column.allowNull && (
           <NoNull
             fontSize="small"
             color={theme.palette.primary.main}
-            style={{ marginRight: 10 }}
+            className={classes.icon}
           />
         )}
         {column.type &&
           colTypes.filter(({ type }) => type === column.type)[0].icon}
         <Handle
-          id={`i${colIndex}r`}
+          id={`i${colId}r`}
           position="right"
           type="target"
           className={classes.handle}
         />
         <Handle
-          id={`o${colIndex}r`}
+          id={`o${colId}r`}
           position="right"
           type="source"
           className={classes.handle}
         />
         <Handle
-          id={`i${colIndex}l`}
+          id={`i${colId}l`}
           position="left"
           type="target"
           className={classes.handle}
         />
         <Handle
-          id={`o${colIndex}l`}
+          id={`o${colId}l`}
           position="left"
           type="source"
           className={classes.handle}
@@ -117,8 +123,8 @@ const TableColumn = ({
         <ColumnControls
           column={column}
           tableId={tableId}
-          colId={colIndex}
-          onColumnChange={onColumnChange}
+          colId={colId}
+          onColumnChange={handleColumnChange}
         />
       </Collapse>
     </>

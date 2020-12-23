@@ -88,7 +88,7 @@ const initalTableState = {
       },
       2: {
         name: "name",
-        type: "INTEGER",
+        type: "STRING",
         allowNull: true,
       },
       3: {

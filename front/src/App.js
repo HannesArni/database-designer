@@ -5,7 +5,7 @@ import {
   MuiThemeProvider,
   useMediaQuery,
 } from "@material-ui/core";
-import { green, purple } from "@material-ui/core/colors";
+import { green, teal } from "@material-ui/core/colors";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -15,8 +15,8 @@ function App() {
       palette: {
         primary: {
           // Purple and green play nicely together.
-          main: purple[500],
-          contrastText: "#fff",
+          main: teal[200],
+          contrastText: "#151515",
         },
         secondary: {
           // This is green.A700 as hex.

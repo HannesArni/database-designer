@@ -1,11 +1,18 @@
-import { List, ListSubheader, Button, Box } from "@material-ui/core";
+import {
+  List,
+  ListSubheader,
+  Collapse,
+  Box,
+  createMuiTheme,
+  MuiThemeProvider,
+} from "@material-ui/core";
 import { Add } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import TableColumn from "./TableColumn";
-import { useContext, useEffect, useState, memo } from "react";
+import TableControls from "./TableControls";
+import { useContext, useState, memo, useMemo } from "react";
+import { HotKeys } from "react-hotkeys";
 import TableContext from "../../context/tables";
-import ReactFlow, { Handle } from "react-flow-renderer";
-import ContextMenu from "../ContextMenu";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,11 +38,19 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.primary,
     cursor: "pointer",
   },
+  fkSelectionBg: {
+    position: "absolute",
+    zIndex: 10,
+    backgroundColor: "#00000080",
+    width: "100%",
+    height: "100%",
+  },
 }));
 
 const Table = ({ id, data: table }) => {
   const { columns, name } = table;
   const { setTable, foreignKeySource } = useContext(TableContext);
+  const [editingTable, setEditingTable] = useState(false);
 
   const onColumnChange = (newValue, index) => {
     const tableCopy = table;
@@ -43,59 +58,80 @@ const Table = ({ id, data: table }) => {
     setTable(tableCopy, id);
   };
   const [editingColumn, setEditingColumn] = useState(null);
-  const toggleEditingColumn = (index) =>
+  const toggleEditingColumn = (index) => {
     editingColumn === index ? setEditingColumn(null) : setEditingColumn(index);
+  };
 
   const addColumn = () => {
     const tableCopy = table;
     const colId =
       Math.max(...Object.keys(tableCopy.columns).map((key) => parseInt(key))) +
       1;
-    tableCopy.columns[colId] = { name: "??", allowNull: true };
+    tableCopy.columns[colId] = { name: "??", allowNull: true, type: "INTEGER" };
     setTable(tableCopy, id);
-    console.log(Object.keys(columns));
-    setEditingColumn(Object.keys(columns)[-1]);
+    setEditingColumn(Object.keys(columns).length.toString());
   };
+
+  const keyMap = {
+    STOP_EDITING: "Escape",
+    REMOVE_COLUMN: "del",
+  };
+  const keyMapHandlers = {
+    STOP_EDITING: (event) => console.log("asdf", event),
+    REMOVE_COLUMN: (event) => console.log("asdfe", event),
+  };
+
+  const theme = useMemo(
+    (theme) => {
+      if (table.color) {
+        return createMuiTheme({
+          palette: {
+            primary: {
+              main: table.color,
+            },
+          },
+        });
+      }
+      return null;
+    },
+    [table.color]
+  );
 
   const classes = useStyles();
   return (
     <>
-      {foreignKeySource && (
-        <div
-          style={{
-            position: "absolute",
-            zIndex: 10,
-            backgroundColor: "#00000080",
-            width: "100%",
-            height: "100%",
-          }}
-        />
-      )}
+      {foreignKeySource && <div className={classes.fkSelectionBg} />}
       <List
         className={classes.root}
         subheader={
-          <ListSubheader className={classes.listSubHeader}>
+          <ListSubheader
+            className={classes.listSubHeader}
+            style={{ backgroundColor: table.color }}
+          >
             {name}
           </ListSubheader>
         }
-        style={{ position: "relative", zIndex: "unset" }}
       >
-        {Object.keys(columns).map((colId) => (
-          <TableColumn
-            editing={editingColumn === colId}
-            column={columns[colId]}
-            onClick={() => toggleEditingColumn(colId)}
-            onColumnChange={(change) => onColumnChange(change, colId)}
-            colIndex={colId}
-            key={colId}
-            tableId={id}
-            style={{ zIndex: 11 }}
-          />
-        ))}
+        <Collapse in={editingTable} unmountOnExit className="nodrag">
+          <TableControls table={table} setTable={setTable} tableId={id} />
+        </Collapse>
+        <HotKeys keyMap={keyMap} handlers={keyMapHandlers}>
+          {Object.keys(columns).map((colId) => (
+            <TableColumn
+              editing={editingColumn === colId}
+              column={columns[colId]}
+              onClick={toggleEditingColumn}
+              onColumnChange={onColumnChange}
+              colId={colId}
+              key={colId}
+              tableId={id}
+            />
+          ))}
+        </HotKeys>
         <Box className={classes.addBox}>
           <Add
             fontSize={"small"}
-            className={[classes.add, "nodrag"]}
+            className={`${classes.add} nodrag`}
             onClick={addColumn}
           />
         </Box>
@@ -104,5 +140,9 @@ const Table = ({ id, data: table }) => {
   );
 };
 export default memo(Table, (prevProps, nextProps) => {
+  console.log(
+    "same?",
+    prevProps.id === nextProps.id && prevProps.data === nextProps.data
+  );
   return prevProps.id === nextProps.id && prevProps.data === nextProps.data;
 });
