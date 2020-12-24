@@ -61,7 +61,10 @@ const TableColumn = ({ editing, column, colId, tableId }) => {
           !currColIsSource && classes.sourceColumn
         }`}
       >
-        <ListItemText primary={column.name} className={classes.columnName} />
+        <ListItemText
+          primary={column.name.length ? column.name : "\u00A0"}
+          className={classes.columnName}
+        />
         {column.pkey && (
           <VpnKey fontSize="small" color="primary" className={classes.icon} />
         )}

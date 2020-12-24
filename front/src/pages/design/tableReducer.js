@@ -68,7 +68,7 @@ const reducer = (state, action) => {
     tables: {
       ...state.tables,
       [tableId]: {
-        ...state[tableId],
+        ...state.tables[tableId],
         ...newValue,
       },
     },
@@ -104,25 +104,32 @@ const reducer = (state, action) => {
     case "setTable":
       return changeTable(action.newValue);
     case "addTable":
-      return changeTable(
-        {
-          name: ".",
-          columns: {
-            1: { name: "id", type: "INTEGER", pkey: true, ai: true },
+      const nextId = getNextElementId(state.tables);
+      return {
+        ...changeTable(
+          {
+            name: "",
+            columns: {
+              1: { name: "id", type: "INTEGER", pkey: true, ai: true },
+            },
+            position: { x: action.xPos, y: action.yPos },
           },
-          position: { x: action.xPos, y: action.yPos },
-        },
-        getNextElementId(state.tables)
-      );
+          nextId
+        ),
+        editing: { tableId: nextId.toString(), colId: -1 },
+      };
     case "setColumn":
       return changeColumn(action.newValue);
     case "addColumn":
       const newId = getNextElementId(state.tables[action.tableId].columns);
-      return changeColumn(
-        { name: "??", allowNull: true, type: "INTEGER" },
-        action.tableId,
-        newId
-      );
+      return {
+        ...changeColumn(
+          { name: "", allowNull: true, type: "INTEGER" },
+          action.tableId,
+          newId
+        ),
+        editing: { tableId: action.tableId, colId: newId.toString() },
+      };
     case "setFKSource":
       return {
         ...state,

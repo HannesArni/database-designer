@@ -36,15 +36,15 @@ const TableControls = ({ table, tableId }) => {
   const handleNameChange = (event) => {
     dispatch({
       type: "setTable",
-      newValue: { ...table, name: event.target.value },
-      tableId,
+      newValue: { name: event.target.value },
+      tableId: tableId,
     });
   };
   const handleColorChange = (event) => {
     dispatch({
       type: "setTable",
       newValue: { color: event.target.value },
-      tableId,
+      tableId: tableId,
     });
   };
 
@@ -55,6 +55,7 @@ const TableControls = ({ table, tableId }) => {
           label="Table name"
           value={table.name}
           onChange={handleNameChange}
+          autoFocus
         />
       </ListItem>
       <ListItem>

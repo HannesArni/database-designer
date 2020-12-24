@@ -73,7 +73,7 @@ const Table = ({ id, data: table }) => {
             style={{ backgroundColor: table.color }}
             onDoubleClick={toggleEditingTable}
           >
-            {name}
+            {name.length ? name : "\u00A0"}
           </ListSubheader>
         }
       >
