@@ -160,28 +160,30 @@ const reducer = (state, action) => {
       return {
         ...state,
         tables: Object.map(
-          changeTable(
-            Object.filter(
+          changeTable({
+            columns: Object.filter(
               state.tables[action.tableId].columns,
               ([colId]) => colId !== action.colId
-            )
-          ),
-          ([tableId, table]) => [
-            tableId,
-            {
-              ...table,
-              columns: Object.map(table.columns, ([colId, col]) => [
-                colId,
-                {
-                  ...col,
-                  ...(col.fkey?.table === action.tableId &&
-                  col.fkey?.column === action.colId
-                    ? { fkey: null }
-                    : {}),
-                },
-              ]),
-            },
-          ]
+            ),
+          }).tables,
+          ([tableId, table]) => {
+            return [
+              tableId,
+              {
+                ...table,
+                columns: Object.map(table.columns, ([colId, col]) => [
+                  colId,
+                  {
+                    ...col,
+                    ...(col.fkey?.table.toString() === action.tableId &&
+                    col.fkey?.column.toString() === action.colId
+                      ? { fkey: null }
+                      : {}),
+                  },
+                ]),
+              },
+            ];
+          }
         ),
       };
     case "setFKSource":

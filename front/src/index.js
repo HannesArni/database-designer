@@ -15,6 +15,7 @@ if (process.env.NODE_ENV === "development") {
 
 // https://stackoverflow.com/questions/14810506/map-function-for-objects-instead-of-arrays
 Object.map = function (obj, fn) {
+  return Object.fromEntries(Object.entries(obj).map(fn));
   const ret = {};
 
   for (let k of Object.keys(obj)) {
