@@ -3,7 +3,7 @@ import { Add } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import TableColumn from "./TableColumn";
 import TableControls from "./TableControls";
-import { useContext, useState, memo, useMemo, useCallback } from "react";
+import { useState, memo, useCallback } from "react";
 import { HotKeys } from "react-hotkeys";
 import { useTableDispatch, useFK } from "../../context/tables";
 
