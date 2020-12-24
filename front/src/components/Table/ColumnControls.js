@@ -1,4 +1,5 @@
 import {
+  Button,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -57,6 +58,12 @@ const ColumnControls = ({ column, tableId, colId }) => {
     dispatch({
       type: "setColumn",
       newValue: { [field]: value },
+      tableId,
+      colId,
+    });
+  const handleRemoveColumn = () =>
+    dispatch({
+      type: "removeColumn",
       tableId,
       colId,
     });
@@ -174,6 +181,16 @@ const ColumnControls = ({ column, tableId, colId }) => {
             toggleCheckbox={toggleCheckbox}
           />
         </FormGroup>
+      </ListItem>
+      <ListItem alignItems="center" style={{ justifyContent: "center" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          onClick={handleRemoveColumn}
+        >
+          Delete column
+        </Button>
       </ListItem>
     </List>
   );

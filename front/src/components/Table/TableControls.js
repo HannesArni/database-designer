@@ -8,6 +8,7 @@ import {
   TextField,
   useTheme,
   Box,
+  Button,
 } from "@material-ui/core";
 import {
   amber,
@@ -45,6 +46,12 @@ const TableControls = ({ table, tableId }) => {
       type: "setTable",
       newValue: { color: event.target.value },
       tableId: tableId,
+    });
+  };
+  const handleRemoveTable = (event) => {
+    dispatch({
+      type: "removeTable",
+      tableId,
     });
   };
 
@@ -96,6 +103,16 @@ const TableControls = ({ table, tableId }) => {
             ))}
           </Select>
         </FormControl>
+      </ListItem>
+      <ListItem alignItems="center" style={{ justifyContent: "center" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          onClick={handleRemoveTable}
+        >
+          Delete table
+        </Button>
       </ListItem>
     </List>
   );

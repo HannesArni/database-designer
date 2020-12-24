@@ -65,6 +65,7 @@ function Designer() {
     const elFkeys = [];
     Object.keys(state.tables).forEach((tableId) => {
       let table = state.tables[tableId];
+      if (!table) return;
       if (state.editing && state.editing.tableId === tableId)
         table = { ...table, editing: state.editing.colId };
       // display the table

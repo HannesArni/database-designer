@@ -13,6 +13,24 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
+// https://stackoverflow.com/questions/14810506/map-function-for-objects-instead-of-arrays
+Object.map = function (obj, fn) {
+  const ret = {};
+
+  for (let k of Object.keys(obj)) {
+    ret[k] = fn([k, obj[k]]);
+  }
+  return ret;
+};
+
+Object.filter = function (obj, fn) {
+  const ret = {};
+  for (let k of Object.keys(obj)) {
+    if (fn([k, obj[k]])) ret[k] = obj[k];
+  }
+  return ret;
+};
+
 ReactDOM.render(
   <React.StrictMode>
     <App />

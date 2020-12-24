@@ -1,4 +1,5 @@
 import { useReducer } from "react";
+
 const initalTableState = {
   tables: {
     1: {
@@ -118,6 +119,30 @@ const reducer = (state, action) => {
         ),
         editing: { tableId: nextId.toString(), colId: -1 },
       };
+    case "removeTable":
+      // first, remove the table. Then, iterate through 'em all and remove FKs referencing the table
+      return {
+        ...state,
+        tables: Object.map(
+          Object.filter(
+            state.tables,
+            ([tableId]) => tableId !== action.tableId
+          ),
+          ([tableId, table]) => [
+            tableId,
+            {
+              ...table,
+              columns: Object.map(table.columns, ([colId, col]) => [
+                colId,
+                {
+                  ...col,
+                  ...(col.fkey?.table === action.tableId ? { fkey: null } : {}),
+                },
+              ]),
+            },
+          ]
+        ),
+      };
     case "setColumn":
       return changeColumn(action.newValue);
     case "addColumn":
@@ -129,6 +154,35 @@ const reducer = (state, action) => {
           newId
         ),
         editing: { tableId: action.tableId, colId: newId.toString() },
+      };
+    case "removeColumn":
+      // first, remove the column. Then, iterate through 'em all and remove FKs referencing the table
+      return {
+        ...state,
+        tables: Object.map(
+          changeTable(
+            Object.filter(
+              state.tables[action.tableId].columns,
+              ([colId]) => colId !== action.colId
+            )
+          ),
+          ([tableId, table]) => [
+            tableId,
+            {
+              ...table,
+              columns: Object.map(table.columns, ([colId, col]) => [
+                colId,
+                {
+                  ...col,
+                  ...(col.fkey?.table === action.tableId &&
+                  col.fkey?.column === action.colId
+                    ? { fkey: null }
+                    : {}),
+                },
+              ]),
+            },
+          ]
+        ),
       };
     case "setFKSource":
       return {
