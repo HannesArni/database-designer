@@ -32,30 +32,25 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const TableColumn = ({
-  editing,
-  column,
-  onClick,
-  onColumnChange,
-  colId,
-  tableId,
-}) => {
+const TableColumn = ({ editing, column, onClick, colId, tableId }) => {
   const theme = useTheme();
-  const { foreignKeySource, addForeignKey } = useContext(TableContext);
+  const dispatch = useContext(TableContext);
+  const FKSource = null;
   const onColClick = () => {
-    if (foreignKeySource) {
-      addForeignKey({ id: tableId, colId: colId });
+    if (FKSource) {
+      dispatch({
+        type: "addFK",
+        targetTableId: tableId,
+        targetColumnId: colId,
+      });
     } else {
       onClick(colId);
     }
   };
   const classes = useStyles();
-  const handleColumnChange = (changes) => onColumnChange(changes, colId);
 
   const currColIsSource =
-    foreignKeySource &&
-    foreignKeySource.id === tableId &&
-    foreignKeySource.colId === colId;
+    FKSource && FKSource.table === tableId && FKSource.column === colId;
 
   return (
     <>
@@ -120,12 +115,7 @@ const TableColumn = ({
       </ListItem>
 
       <Collapse className="nodrag" in={editing} unmountOnExit>
-        <ColumnControls
-          column={column}
-          tableId={tableId}
-          colId={colId}
-          onColumnChange={handleColumnChange}
-        />
+        <ColumnControls column={column} tableId={tableId} colId={colId} />
       </Collapse>
     </>
   );

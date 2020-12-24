@@ -5,7 +5,7 @@ import ReactFlow, {
 } from "react-flow-renderer";
 import ContextMenu from "../../components/ContextMenu";
 import Table from "../../components/Table";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useReducer } from "react";
 import { makeStyles, Typography } from "@material-ui/core";
 import TableContext from "../../context/tables";
 import TableEdge from "../../components/CustomEdge/TableEdge";
@@ -50,126 +50,182 @@ const edgeTypes = {
   default: TableEdge,
 };
 const initalTableState = {
-  1: {
-    name: "columns",
-    columns: {
-      1: { name: "id", type: "INTEGER", pkey: true, ai: true, allowNull: true },
-      2: {
-        name: "tableId",
-        type: "INTEGER",
-        fkey: { table: 2, column: 1 },
-        allowNull: true,
+  tables: {
+    1: {
+      name: "columns",
+      columns: {
+        1: {
+          name: "id",
+          type: "INTEGER",
+          pkey: true,
+          ai: true,
+          allowNull: true,
+        },
+        2: {
+          name: "tableId",
+          type: "INTEGER",
+          fkey: { table: 2, column: 1 },
+          allowNull: true,
+        },
+        3: { name: "name", type: "STRING", allowNull: true },
+        4: { name: "type", type: "ENUM", allowNull: true },
+        5: { name: "length", type: "INTEGER", allowNull: true },
+        6: { name: "default", type: "STRING", allowNull: true },
+        7: { name: "pkey", type: "BOOLEAN", allowNull: true },
+        8: { name: "ai", type: "BOOLEAN", allowNull: true },
+        9: { name: "allowNull", type: "BOOLEAN", allowNull: true },
+        10: {
+          name: "fkey",
+          type: "INTEGER",
+          fkey: { table: 1, column: 1 },
+          allowNull: true,
+        },
       },
-      3: { name: "name", type: "STRING", allowNull: true },
-      4: { name: "type", type: "ENUM", allowNull: true },
-      5: { name: "length", type: "INTEGER", allowNull: true },
-      6: { name: "default", type: "STRING", allowNull: true },
-      7: { name: "pkey", type: "BOOLEAN", allowNull: true },
-      8: { name: "ai", type: "BOOLEAN", allowNull: true },
-      9: { name: "allowNull", type: "BOOLEAN", allowNull: true },
-      10: {
-        name: "fkey",
-        type: "INTEGER",
-        fkey: { table: 1, column: 1 },
-        allowNull: true,
-      },
+      position: { x: 100, y: 100 },
     },
-    position: { x: 100, y: 100 },
-  },
-  2: {
-    name: "tables",
-    columns: {
-      1: {
-        name: "id",
-        type: "INTEGER",
-        pkey: true,
-        ai: true,
-        allowNull: true,
+    2: {
+      name: "tables",
+      columns: {
+        1: {
+          name: "id",
+          type: "INTEGER",
+          pkey: true,
+          ai: true,
+          allowNull: true,
+        },
+        2: {
+          name: "name",
+          type: "STRING",
+          allowNull: true,
+        },
+        3: {
+          name: "color",
+          type: "STRING",
+          allowNull: true,
+        },
       },
-      2: {
-        name: "name",
-        type: "STRING",
-        allowNull: true,
+      position: {
+        x: 600,
+        y: 300,
       },
-      3: {
-        name: "color",
-        type: "STRING",
-        allowNull: true,
-      },
-    },
-    position: {
-      x: 600,
-      y: 300,
     },
   },
 };
+const isFunc = (maybeFunc) => maybeFunc instanceof Function;
 
 function Designer() {
   const classes = useStyles();
-  const [tables, setTables] = useState(initalTableState);
+  // const [tables, setTables] = useState(initalTableState);
   const [elements, setElements] = useState([]);
   const [FKSource, setFKSource] = useState();
-  const setTable = (newValue, tableId) => {
-    setTables((prevValue) => ({
-      ...prevValue,
-      [tableId]: { ...prevValue[tableId], ...newValue },
-    }));
-  };
-  const setColumn = (newValue, tableId, columnId) => {
-    setTables((tables) => ({
-      ...tables,
-      [tableId]: {
-        ...tables[tableId],
-        columns: {
-          ...tables[tableId].columns,
-          [columnId]: {
-            ...tables[tableId].columns[columnId],
-            ...newValue,
-          },
+
+  const reducer = (state, action) => {
+    const changeTable = (newValue, tableId = action.tableId) => ({
+      ...state,
+      tables: {
+        ...state.tables,
+        [tableId]: {
+          ...state[tableId],
+          ...newValue,
         },
-      },
-    }));
-  };
-  const removeFK = ({ table, column }) =>
-    setColumn({ fkey: null }, parseInt(table), parseInt(column));
-
-  const addForeignKey = ({ id, colId }) => {
-    const sTable = tables[FKSource.id];
-    const sameTableFK = Object.keys(sTable.columns).filter(
-      (colId) => sTable.columns[colId]?.fkey?.table === parseInt(id)
-    )[0];
-    if (sameTableFK) removeFK({ table: FKSource.id, column: sameTableFK });
-
-    setColumn(
-      { fkey: { table: parseInt(id), column: parseInt(colId) } },
-      FKSource.id,
-      FKSource.colId
-    );
-    setFKSource(null);
-  };
-
-  const getNextElementId = (dict) =>
-    Math.max(...Object.keys(dict).map((key) => parseInt(key))) + 1;
-
-  const createNewTable = ({ xPos, yPos }) => {
-    const id = getNextElementId(tables);
-    setTables({
-      ...tables,
-      [id]: {
-        name: ".",
-        columns: {
-          1: { name: "id", type: "INTEGER", pkey: true, ai: true },
-        },
-        position: { x: xPos, y: yPos },
       },
     });
+
+    const changeColumn = (
+      newValue,
+      tableId = action.tableId,
+      colId = action.colId
+    ) => {
+      console.log(state.tables[tableId], state.tables[tableId], tableId);
+      return {
+        ...state,
+        tables: {
+          ...state.tables,
+          [tableId]: {
+            ...state.tables[tableId],
+            columns: {
+              ...state.tables[tableId].columns,
+              [colId]: {
+                ...state.tables[tableId].columns[colId],
+                ...newValue,
+              },
+            },
+          },
+        },
+      };
+    };
+
+    const getNextElementId = (dict) =>
+      Math.max(...Object.keys(dict).map((key) => parseInt(key))) + 1;
+
+    switch (action.type) {
+      case "setTable":
+        return changeTable(action.newValue);
+      case "addTable":
+        return changeTable(
+          {
+            name: ".",
+            columns: {
+              1: { name: "id", type: "INTEGER", pkey: true, ai: true },
+            },
+            position: { x: action.xPos, y: action.yPos },
+          },
+          getNextElementId(state.tables)
+        );
+      case "setColumn":
+        return changeColumn(action.newValue);
+      case "addColumn":
+        const newId = getNextElementId(state.tables[action.tableId].columns);
+        return changeColumn(
+          { name: "??", allowNull: true, type: "INTEGER" },
+          action.tableId,
+          newId
+        );
+      case "setFKSource":
+        return {
+          ...state,
+          FKSource: { tableId: action.tableId, colId: action.colId },
+        };
+      case "addFK":
+        const table = state.tables[state.FKSource.tableId];
+        const sameTableFK = Object.keys(table.columns).filter(
+          (colId) =>
+            table.columns[colId]?.fkey?.table === parseInt(action.targetTableId)
+        )[0];
+        if (sameTableFK)
+          return changeColumn(
+            { fkey: null },
+            state.FKSource.tableId,
+            sameTableFK
+          );
+        console.log("source", state.FKSource);
+        return {
+          ...changeColumn(
+            {
+              fkey: {
+                table: action.targetTableId,
+                column: action.targetColumnId,
+              },
+            },
+            state.FKSource.tableId,
+            state.FKSource.colId
+          ),
+          FKSource: null,
+        };
+      case "removeFK":
+        return changeColumn({ fkey: null });
+
+      default:
+        throw new Error();
+    }
   };
+  const [state, dispatch] = useReducer(reducer, initalTableState);
 
   useEffect(() => {
     const elTables = [];
     const elFkeys = [];
-    Object.keys(tables).forEach((tableId) => {
-      const table = tables[tableId];
+    Object.keys(state.tables).forEach((tableId) => {
+      const table = state.tables[tableId];
       // display the table
       elTables.push({
         id: tableId.toString(),
@@ -195,7 +251,7 @@ function Designer() {
       });
     });
     setElements([...elTables, ...elFkeys]);
-  }, [tables]);
+  }, [state]);
 
   const [backgroundContextPos, setBackgroundContextPos] = useState({
     x: null,
@@ -211,21 +267,14 @@ function Designer() {
     setBackgroundContextPos({ x: null, y: null });
     setBackgroundContextOpen(false);
   };
-  const backgroundContextActions = [
-    { label: "New table", action: createNewTable },
-  ];
+  const addTable = (args) => dispatch({ type: "addTable", ...args });
+
+  const backgroundContextActions = [{ label: "New table", action: addTable }];
+  console.log(state.FKSource);
 
   return (
     <ReactFlowProvider>
-      <TableContext.Provider
-        value={{
-          setTable,
-          foreignKeySource: FKSource,
-          setForeignKeySource: setFKSource,
-          addForeignKey,
-          removeFK,
-        }}
-      >
+      <TableContext.Provider value={dispatch}>
         <ReactFlow
           elements={elements}
           onContextMenu={onBackgroundContextOpen}

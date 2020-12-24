@@ -75,7 +75,7 @@ const TableControls = ({ table, setTable, tableId }) => {
               teal,
               yellow,
             ].map((color) => (
-              <MenuItem value={color[200]}>
+              <MenuItem value={color[200]} key={color[200]}>
                 <Box
                   style={{
                     width: 10,

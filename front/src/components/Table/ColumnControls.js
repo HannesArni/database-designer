@@ -12,7 +12,7 @@ import {
   Typography,
   useTheme,
 } from "@material-ui/core";
-import { useContext, useEffect, useRef } from "react";
+import { useContext } from "react";
 import TableContext from "../../context/tables";
 import { colTypes } from "../../constants";
 
@@ -50,13 +50,17 @@ const ControlCheckbox = ({
     </FormControl>
   );
 };
-const TableControls = ({ column, onColumnChange, tableId, colId }) => {
+const ColumnControls = ({ column, tableId, colId }) => {
   const theme = useTheme();
-  const { foreignKeySource, setForeignKeySource, removeFK } = useContext(
-    TableContext
-  );
+  const dispatch = useContext(TableContext);
+  const FKSource = null;
   const updateField = (field, value) =>
-    onColumnChange({ ...column, [field]: value });
+    dispatch({
+      type: "setColumn",
+      newValue: { [field]: value },
+      tableId,
+      colId,
+    });
   const handleTextFieldChange = (event) =>
     updateField(event.target.name, event.target.value);
   const handleCheckboxChange = (event) =>
@@ -65,12 +69,10 @@ const TableControls = ({ column, onColumnChange, tableId, colId }) => {
     updateField(event.target.name, !event.target.checked);
   const onFKeyChange = (event) =>
     event.target.checked
-      ? setForeignKeySource({ id: tableId, colId: colId })
-      : removeFK({ table: tableId, column: colId });
+      ? dispatch({ type: "setFKSource", tableId, colId })
+      : dispatch({ type: "removeFK", tableId, colId });
   const currColIsSource =
-    foreignKeySource &&
-    foreignKeySource.id === tableId &&
-    foreignKeySource.colId === colId;
+    FKSource && FKSource.id === tableId && FKSource.colId === colId;
 
   return (
     <List style={{ backgroundColor: theme.palette.background.paperAlt }}>
@@ -102,7 +104,7 @@ const TableControls = ({ column, onColumnChange, tableId, colId }) => {
               onChange={handleTextFieldChange}
             >
               {colTypes.map(({ type, icon }) => (
-                <MenuItem value={type}>
+                <MenuItem value={type} key={type}>
                   <div
                     style={{
                       display: "inline-flex",
@@ -177,4 +179,4 @@ const TableControls = ({ column, onColumnChange, tableId, colId }) => {
     </List>
   );
 };
-export default TableControls;
+export default ColumnControls;

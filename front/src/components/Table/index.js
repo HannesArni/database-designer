@@ -1,16 +1,9 @@
-import {
-  List,
-  ListSubheader,
-  Collapse,
-  Box,
-  createMuiTheme,
-  MuiThemeProvider,
-} from "@material-ui/core";
+import { List, ListSubheader, Collapse, Box } from "@material-ui/core";
 import { Add } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import TableColumn from "./TableColumn";
 import TableControls from "./TableControls";
-import { useContext, useState, memo, useMemo } from "react";
+import { useContext, useState, memo, useMemo, useCallback } from "react";
 import { HotKeys } from "react-hotkeys";
 import TableContext from "../../context/tables";
 
@@ -47,60 +40,39 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const keyMap = {
+  STOP_EDITING: "Escape",
+  REMOVE_COLUMN: "del",
+};
+
 const Table = ({ id, data: table }) => {
   const { columns, name } = table;
-  const { setTable, foreignKeySource } = useContext(TableContext);
+  const dispatch = useContext(TableContext);
+  const FKSource = null;
   const [editingTable, setEditingTable] = useState(false);
 
-  const onColumnChange = (newValue, index) => {
-    const tableCopy = table;
-    tableCopy.columns[index] = newValue;
-    setTable(tableCopy, id);
-  };
   const [editingColumn, setEditingColumn] = useState(null);
-  const toggleEditingColumn = (index) => {
-    editingColumn === index ? setEditingColumn(null) : setEditingColumn(index);
-  };
+  const toggleEditingColumn = useCallback(
+    (index) =>
+      setEditingColumn((prevValue) => (prevValue === index ? null : index)),
+    []
+  );
 
-  const addColumn = () => {
-    const tableCopy = table;
-    const colId =
-      Math.max(...Object.keys(tableCopy.columns).map((key) => parseInt(key))) +
-      1;
-    tableCopy.columns[colId] = { name: "??", allowNull: true, type: "INTEGER" };
-    setTable(tableCopy, id);
-    setEditingColumn(Object.keys(columns).length.toString());
-  };
+  const colCount = columns ? Object.keys(columns).length : 0;
+  const handleAddColumn = useCallback(() => {
+    dispatch({ type: "addColumn", tableId: id });
+    setEditingColumn((colCount + 1).toString());
+  }, [colCount, setEditingColumn, id, dispatch]);
 
-  const keyMap = {
-    STOP_EDITING: "Escape",
-    REMOVE_COLUMN: "del",
-  };
   const keyMapHandlers = {
     STOP_EDITING: (event) => console.log("asdf", event),
     REMOVE_COLUMN: (event) => console.log("asdfe", event),
   };
 
-  const theme = useMemo(
-    (theme) => {
-      if (table.color) {
-        return createMuiTheme({
-          palette: {
-            primary: {
-              main: table.color,
-            },
-          },
-        });
-      }
-      return null;
-    },
-    [table.color]
-  );
-
   const classes = useStyles();
   return (
     <>
-      {foreignKeySource && <div className={classes.fkSelectionBg} />}
+      {FKSource && <div className={classes.fkSelectionBg} />}
       <List
         className={classes.root}
         subheader={
@@ -112,16 +84,15 @@ const Table = ({ id, data: table }) => {
           </ListSubheader>
         }
       >
-        <Collapse in={editingTable} unmountOnExit className="nodrag">
-          <TableControls table={table} setTable={setTable} tableId={id} />
-        </Collapse>
+        {/*<Collapse in={editingTable} unmountOnExit className="nodrag">*/}
+        {/*  <TableControls table={table} tableId={id} />*/}
+        {/*</Collapse>*/}
         <HotKeys keyMap={keyMap} handlers={keyMapHandlers}>
           {Object.keys(columns).map((colId) => (
             <TableColumn
               editing={editingColumn === colId}
               column={columns[colId]}
               onClick={toggleEditingColumn}
-              onColumnChange={onColumnChange}
               colId={colId}
               key={colId}
               tableId={id}
@@ -132,7 +103,7 @@ const Table = ({ id, data: table }) => {
           <Add
             fontSize={"small"}
             className={`${classes.add} nodrag`}
-            onClick={addColumn}
+            onClick={handleAddColumn}
           />
         </Box>
       </List>
@@ -140,9 +111,5 @@ const Table = ({ id, data: table }) => {
   );
 };
 export default memo(Table, (prevProps, nextProps) => {
-  console.log(
-    "same?",
-    prevProps.id === nextProps.id && prevProps.data === nextProps.data
-  );
   return prevProps.id === nextProps.id && prevProps.data === nextProps.data;
 });
