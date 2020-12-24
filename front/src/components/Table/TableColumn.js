@@ -8,8 +8,8 @@ import {
 import { VpnKey, TextRotateUpRounded } from "@material-ui/icons";
 import { Unique, NoNull } from "../Icons";
 import { Handle } from "react-flow-renderer";
-import { useContext, memo } from "react";
-import TableContext from "../../context/tables";
+import { memo } from "react";
+import { useTableDispatch, useFK } from "../../context/tables";
 import { colTypes } from "../../constants";
 import ColumnControls from "./ColumnControls";
 
@@ -34,8 +34,8 @@ const useStyles = makeStyles((theme) => ({
 
 const TableColumn = ({ editing, column, onClick, colId, tableId }) => {
   const theme = useTheme();
-  const dispatch = useContext(TableContext);
-  const FKSource = null;
+  const dispatch = useTableDispatch();
+  const FKSource = useFK();
   const onColClick = () => {
     if (FKSource) {
       dispatch({

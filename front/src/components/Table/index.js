@@ -5,7 +5,7 @@ import TableColumn from "./TableColumn";
 import TableControls from "./TableControls";
 import { useContext, useState, memo, useMemo, useCallback } from "react";
 import { HotKeys } from "react-hotkeys";
-import TableContext from "../../context/tables";
+import { useTableDispatch, useFK } from "../../context/tables";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,9 +47,11 @@ const keyMap = {
 
 const Table = ({ id, data: table }) => {
   const { columns, name } = table;
-  const dispatch = useContext(TableContext);
-  const FKSource = null;
+  const dispatch = useTableDispatch();
+  const FKSource = useFK();
   const [editingTable, setEditingTable] = useState(false);
+  const toggleEditingTable = () =>
+    setEditingTable((editingTable) => !editingTable);
 
   const [editingColumn, setEditingColumn] = useState(null);
   const toggleEditingColumn = useCallback(
@@ -79,14 +81,15 @@ const Table = ({ id, data: table }) => {
           <ListSubheader
             className={classes.listSubHeader}
             style={{ backgroundColor: table.color }}
+            onDoubleClick={toggleEditingTable}
           >
             {name}
           </ListSubheader>
         }
       >
-        {/*<Collapse in={editingTable} unmountOnExit className="nodrag">*/}
-        {/*  <TableControls table={table} tableId={id} />*/}
-        {/*</Collapse>*/}
+        <Collapse in={editingTable} unmountOnExit className="nodrag">
+          <TableControls table={table} tableId={id} />
+        </Collapse>
         <HotKeys keyMap={keyMap} handlers={keyMapHandlers}>
           {Object.keys(columns).map((colId) => (
             <TableColumn

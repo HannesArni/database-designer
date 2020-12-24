@@ -30,14 +30,24 @@ import {
   yellow,
 } from "@material-ui/core/colors";
 import { memo } from "react";
+import { useTableDispatch } from "../../context/tables";
 
-const TableControls = ({ table, setTable, tableId }) => {
+const TableControls = ({ table, tableId }) => {
   const theme = useTheme();
+  const dispatch = useTableDispatch();
   const handleNameChange = (event) => {
-    setTable({ ...table, name: event.target.value }, tableId);
+    dispatch({
+      type: "setTable",
+      newValue: { ...table, name: event.target.value },
+      tableId,
+    });
   };
   const handleColorChange = (event) => {
-    setTable({ ...table, color: event.target.value }, tableId);
+    dispatch({
+      type: "setTable",
+      newValue: { color: event.target.value },
+      tableId,
+    });
   };
 
   return (

@@ -12,8 +12,7 @@ import {
   Typography,
   useTheme,
 } from "@material-ui/core";
-import { useContext } from "react";
-import TableContext from "../../context/tables";
+import { useTableDispatch, useFK } from "../../context/tables";
 import { colTypes } from "../../constants";
 
 const titlefy = (txt) =>
@@ -52,8 +51,8 @@ const ControlCheckbox = ({
 };
 const ColumnControls = ({ column, tableId, colId }) => {
   const theme = useTheme();
-  const dispatch = useContext(TableContext);
-  const FKSource = null;
+  const dispatch = useTableDispatch();
+  const FKSource = useFK();
   const updateField = (field, value) =>
     dispatch({
       type: "setColumn",

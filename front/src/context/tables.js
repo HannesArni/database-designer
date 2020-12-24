@@ -1,5 +1,7 @@
-import { createContext } from "react";
+import { createContext, useContext } from "react";
 
-const TableContext = createContext();
+export const TableDispatchContext = createContext();
+export const FKContext = createContext();
 
-export default TableContext;
+export const useTableDispatch = () => useContext(TableDispatchContext);
+export const useFK = () => useContext(FKContext);
