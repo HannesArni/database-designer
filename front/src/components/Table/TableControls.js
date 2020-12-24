@@ -99,9 +99,4 @@ const TableControls = ({ table, tableId }) => {
     </List>
   );
 };
-export default memo(
-  TableControls,
-  (prevProps, nextProps) =>
-    prevProps.table.name === nextProps.table.name &&
-    prevProps.table.color === nextProps.table.color
-);
+export default memo(TableControls);

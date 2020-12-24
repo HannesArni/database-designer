@@ -64,7 +64,9 @@ function Designer() {
     const elTables = [];
     const elFkeys = [];
     Object.keys(state.tables).forEach((tableId) => {
-      const table = state.tables[tableId];
+      let table = state.tables[tableId];
+      if (state.editing && state.editing.tableId === tableId)
+        table = { ...table, editing: state.editing.colId };
       // display the table
       elTables.push({
         id: tableId.toString(),

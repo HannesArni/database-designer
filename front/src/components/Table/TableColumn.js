@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const TableColumn = ({ editing, column, onClick, colId, tableId }) => {
+const TableColumn = ({ editing, column, colId, tableId }) => {
   const theme = useTheme();
   const dispatch = useTableDispatch();
   const FKSource = useFK();
@@ -44,7 +44,7 @@ const TableColumn = ({ editing, column, onClick, colId, tableId }) => {
         targetColumnId: colId,
       });
     } else {
-      onClick(colId);
+      dispatch({ type: "toggleEditing", tableId, colId });
     }
   };
   const classes = useStyles();

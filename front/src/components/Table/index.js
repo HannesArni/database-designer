@@ -3,7 +3,7 @@ import { Add } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import TableColumn from "./TableColumn";
 import TableControls from "./TableControls";
-import { useState, memo, useCallback } from "react";
+import { memo, useCallback } from "react";
 import { HotKeys } from "react-hotkeys";
 import { useTableDispatch, useFK } from "../../context/tables";
 
@@ -49,25 +49,15 @@ const Table = ({ id, data: table }) => {
   const { columns, name } = table;
   const dispatch = useTableDispatch();
   const FKSource = useFK();
-  const [editingTable, setEditingTable] = useState(false);
   const toggleEditingTable = () =>
-    setEditingTable((editingTable) => !editingTable);
+    dispatch({ type: "toggleEditing", tableId: id, colId: -1 });
 
-  const [editingColumn, setEditingColumn] = useState(null);
-  const toggleEditingColumn = useCallback(
-    (index) =>
-      setEditingColumn((prevValue) => (prevValue === index ? null : index)),
-    []
-  );
-
-  const colCount = columns ? Object.keys(columns).length : 0;
   const handleAddColumn = useCallback(() => {
     dispatch({ type: "addColumn", tableId: id });
-    setEditingColumn((colCount + 1).toString());
-  }, [colCount, setEditingColumn, id, dispatch]);
+  }, [id, dispatch]);
 
   const keyMapHandlers = {
-    STOP_EDITING: (event) => console.log("asdf", event),
+    STOP_EDITING: (event) => console.log("asdfs", event),
     REMOVE_COLUMN: (event) => console.log("asdfe", event),
   };
 
@@ -87,15 +77,14 @@ const Table = ({ id, data: table }) => {
           </ListSubheader>
         }
       >
-        <Collapse in={editingTable} unmountOnExit className="nodrag">
+        <Collapse in={table.editing === -1} unmountOnExit className="nodrag">
           <TableControls table={table} tableId={id} />
         </Collapse>
         <HotKeys keyMap={keyMap} handlers={keyMapHandlers}>
           {Object.keys(columns).map((colId) => (
             <TableColumn
-              editing={editingColumn === colId}
+              editing={table.editing === colId}
               column={columns[colId]}
-              onClick={toggleEditingColumn}
               colId={colId}
               key={colId}
               tableId={id}
@@ -113,6 +102,4 @@ const Table = ({ id, data: table }) => {
     </>
   );
 };
-export default memo(Table, (prevProps, nextProps) => {
-  return prevProps.id === nextProps.id && prevProps.data === nextProps.data;
-});
+export default memo(Table);

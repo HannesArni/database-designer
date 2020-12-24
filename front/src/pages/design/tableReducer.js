@@ -60,6 +60,7 @@ const initalTableState = {
       },
     },
   },
+  editing: {},
 };
 const reducer = (state, action) => {
   const changeTable = (newValue, tableId = action.tableId) => ({
@@ -154,7 +155,17 @@ const reducer = (state, action) => {
       };
     case "removeFK":
       return changeColumn({ fkey: null });
-
+    case "toggleEditing":
+      const actionExtracted = { tableId: action.tableId, colId: action.colId };
+      if (
+        actionExtracted.tableId === state.editing.tableId &&
+        actionExtracted.colId === state.editing.colId
+      )
+        return { ...state, editing: {} };
+      return {
+        ...state,
+        editing: actionExtracted,
+      };
     default:
       throw new Error();
   }
