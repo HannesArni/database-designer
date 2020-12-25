@@ -54,6 +54,16 @@ const initalTableState = {
           type: "STRING",
           allowNull: true,
         },
+        4: {
+          name: "xPos",
+          type: "INTEGER",
+          allowNull: true,
+        },
+        5: {
+          name: "yPos",
+          type: "INTEGER",
+          allowNull: true,
+        },
       },
       position: {
         x: 600,
@@ -229,6 +239,44 @@ const reducer = (state, action) => {
         ...state,
         editing: actionExtracted,
       };
+    case "stopEditing":
+      return { ...state, editing: {} };
+    case "nextColumn":
+      const { colId, tableId } = state.editing;
+      if (!colId || !tableId) return state;
+      const parsedColId = parseInt(colId);
+      const higherIds = Object.keys(state.tables[tableId].columns)
+        .map((colId) => parseInt(colId))
+        .filter((id) => id > parsedColId);
+      if (higherIds.length)
+        return {
+          ...state,
+          editing: {
+            ...state.editing,
+            colId: higherIds[0].toString(),
+          },
+        };
+      const parsedTableId = parseInt(tableId);
+      const higherTableIds = Object.keys(state.tables)
+        .map((tableId) => parseInt(tableId))
+        .filter((id) => id > parsedTableId);
+      if (higherTableIds.length)
+        return {
+          ...state,
+          editing: {
+            tableId: higherTableIds[0].toString(),
+            colId: -1,
+          },
+        };
+      else
+        return {
+          ...state,
+          editing: {
+            tableId: Object.keys(state.tables)[0],
+            colId: -1,
+          },
+        };
+
     default:
       throw new Error();
   }

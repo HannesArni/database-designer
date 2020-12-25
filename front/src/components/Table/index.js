@@ -40,11 +40,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const keyMap = {
-  STOP_EDITING: "Escape",
-  REMOVE_COLUMN: "del",
-};
-
 const Table = ({ id, data: table }) => {
   const { columns, name } = table;
   const dispatch = useTableDispatch();
@@ -55,11 +50,6 @@ const Table = ({ id, data: table }) => {
   const handleAddColumn = useCallback(() => {
     dispatch({ type: "addColumn", tableId: id });
   }, [id, dispatch]);
-
-  const keyMapHandlers = {
-    STOP_EDITING: (event) => console.log("asdfs", event),
-    REMOVE_COLUMN: (event) => console.log("asdfe", event),
-  };
 
   const classes = useStyles();
   return (
@@ -80,17 +70,15 @@ const Table = ({ id, data: table }) => {
         <Collapse in={table.editing === -1} unmountOnExit className="nodrag">
           <TableControls table={table} tableId={id} />
         </Collapse>
-        <HotKeys keyMap={keyMap} handlers={keyMapHandlers}>
-          {Object.keys(columns).map((colId) => (
-            <TableColumn
-              editing={table.editing === colId}
-              column={columns[colId]}
-              colId={colId}
-              key={colId}
-              tableId={id}
-            />
-          ))}
-        </HotKeys>
+        {Object.keys(columns).map((colId) => (
+          <TableColumn
+            editing={table.editing === colId}
+            column={columns[colId]}
+            colId={colId}
+            key={colId}
+            tableId={id}
+          />
+        ))}
         <Box className={classes.addBox}>
           <Add
             fontSize={"small"}

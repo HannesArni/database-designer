@@ -10,6 +10,7 @@ import { makeStyles, Typography } from "@material-ui/core";
 import { TableDispatchContext, FKContext } from "../../context/tables";
 import TableEdge from "../../components/CustomEdge/TableEdge";
 import useTableReducer from "./tableReducer";
+import { GlobalHotKeys } from "react-hotkeys";
 
 const useStyles = makeStyles((theme) => ({
   flowBackground: {
@@ -49,6 +50,12 @@ const nodeTypes = {
 };
 const edgeTypes = {
   default: TableEdge,
+};
+
+const keyMap = {
+  STOP_EDITING: "Escape",
+  ADD_TABLE: "alt+t",
+  NEXT_COLUMN: "Ctrl+shift+down",
 };
 
 const snapGrid = [15, 15];
@@ -95,6 +102,8 @@ function Designer() {
     setElements([...elTables, ...elFkeys]);
   }, [state]);
 
+  const addTable = (args) => dispatch({ type: "addTable", ...args });
+
   const [backgroundContextPos, setBackgroundContextPos] = useState({
     x: null,
     y: null,
@@ -109,12 +118,19 @@ function Designer() {
     setBackgroundContextPos({ x: null, y: null });
     setBackgroundContextOpen(false);
   };
-  const addTable = (args) => dispatch({ type: "addTable", ...args });
-
   const backgroundContextActions = [{ label: "New table", action: addTable }];
+
+  const keyMapHandlers = {
+    STOP_EDITING: () => {
+      dispatch({ type: "stopEditing" });
+    },
+    ADD_TABLE: (event) => dispatch({ type: "addTable", xPos: 100, yPos: 100 }),
+    NEXT_COLUMN: () => dispatch({ type: "nextColumn" }),
+  };
 
   return (
     <ReactFlowProvider>
+      <GlobalHotKeys keyMap={keyMap} handlers={keyMapHandlers} />
       <TableDispatchContext.Provider value={dispatch}>
         <FKContext.Provider value={state.FKSource}>
           <ReactFlow

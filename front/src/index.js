@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { configure } from "react-hotkeys";
 
 /** @jsxImportSource @welldone-software/why-did-you-render */
 
@@ -16,12 +17,6 @@ if (process.env.NODE_ENV === "development") {
 // https://stackoverflow.com/questions/14810506/map-function-for-objects-instead-of-arrays
 Object.map = function (obj, fn) {
   return Object.fromEntries(Object.entries(obj).map(fn));
-  const ret = {};
-
-  for (let k of Object.keys(obj)) {
-    ret[k] = fn([k, obj[k]]);
-  }
-  return ret;
 };
 
 Object.filter = function (obj, fn) {
@@ -31,6 +26,11 @@ Object.filter = function (obj, fn) {
   }
   return ret;
 };
+
+// configure hotkeys
+configure({
+  ignoreTags: [],
+});
 
 ReactDOM.render(
   <React.StrictMode>

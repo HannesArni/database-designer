@@ -15,6 +15,7 @@ import {
 } from "@material-ui/core";
 import { useTableDispatch, useFK } from "../../context/tables";
 import { colTypes } from "../../constants";
+import { HotKeys } from "react-hotkeys";
 
 const titlefy = (txt) =>
   txt.replace(/\w\S*/g, function (txt) {
@@ -50,6 +51,11 @@ const ControlCheckbox = ({
     </FormControl>
   );
 };
+
+const keyMap = {
+  REMOVE_COLUMN: "Ctrl+del",
+};
+
 const ColumnControls = ({ column, tableId, colId }) => {
   const theme = useTheme();
   const dispatch = useTableDispatch();
@@ -80,119 +86,126 @@ const ColumnControls = ({ column, tableId, colId }) => {
   const currColIsSource =
     FKSource && FKSource.id === tableId && FKSource.colId === colId;
 
+  const keyMapHandlers = {
+    REMOVE_COLUMN: (event) =>
+      dispatch({ type: "removeColumn", tableId, colId }),
+  };
+
   return (
-    <List style={{ backgroundColor: theme.palette.background.paperAlt }}>
-      <ListItem>
-        <TextField
-          label="Column name"
-          value={column.name}
-          name="name"
-          onChange={handleTextFieldChange}
-          fullWidth
-          autoFocus
-        />
-      </ListItem>
-      <ListItem>
-        <FormGroup
-          row
-          style={{
-            display: "flex",
-            alignItems: "flex-end",
-            width: "100%",
-            flexWrap: "nowrap",
-          }}
-        >
-          <FormControl style={{ display: "flex", flex: "1 0 auto" }}>
-            <InputLabel>Type</InputLabel>
-            <Select
-              value={column.type}
-              name="type"
-              onChange={handleTextFieldChange}
-            >
-              {colTypes.map(({ type, icon }) => (
-                <MenuItem value={type} key={type}>
-                  <div
-                    style={{
-                      display: "inline-flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    {icon}
-                    <Typography style={{ marginLeft: 8 }}>
-                      {titlefy(type)}
-                    </Typography>
-                  </div>
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl
+    <HotKeys keyMap={keyMap} handlers={keyMapHandlers}>
+      <List style={{ backgroundColor: theme.palette.background.paperAlt }}>
+        <ListItem>
+          <TextField
+            label="Column name"
+            value={column.name}
+            name="name"
+            onChange={handleTextFieldChange}
+            fullWidth
+            autoFocus
+          />
+        </ListItem>
+        <ListItem>
+          <FormGroup
+            row
             style={{
               display: "flex",
-              flex: "0 1 auto",
-              width: "3.5rem",
-              marginLeft: 10,
+              alignItems: "flex-end",
+              width: "100%",
+              flexWrap: "nowrap",
             }}
           >
-            <TextField label="Length" name="length" type="number" />
-          </FormControl>
-        </FormGroup>
-      </ListItem>
-      <ListItem>
-        <TextField label="Default" name="default" size="small" fullWidth />
-      </ListItem>
-      <ListItem>
-        <FormGroup>
-          <ControlCheckbox
-            checked={column.pkey}
-            name="pkey"
-            handleCheckboxChange={handleCheckboxChange}
-            label="Primary key"
-            toggleCheckbox={toggleCheckbox}
-          />
-          <ControlCheckbox
-            checked={column.ai}
-            name="ai"
-            handleCheckboxChange={handleCheckboxChange}
-            label="Auto increment"
-            toggleCheckbox={toggleCheckbox}
-          />
-          <ControlCheckbox
-            checked={column.allowNull}
-            name="allowNull"
-            handleCheckboxChange={handleCheckboxChange}
-            label="Allow null"
-            toggleCheckbox={toggleCheckbox}
-          />
-          <ControlCheckbox
-            checked={column.unique}
-            name="unique"
-            handleCheckboxChange={handleCheckboxChange}
-            label="Unique"
-            toggleCheckbox={toggleCheckbox}
-          />
-          <ControlCheckbox
-            checked={column.fkey}
-            indeterminate={currColIsSource}
-            name="fk"
-            handleCheckboxChange={onFKeyChange}
-            label="Foreign key"
-            toggleCheckbox={toggleCheckbox}
-          />
-        </FormGroup>
-      </ListItem>
-      <ListItem alignItems="center" style={{ justifyContent: "center" }}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          onClick={handleRemoveColumn}
-        >
-          Delete column
-        </Button>
-      </ListItem>
-    </List>
+            <FormControl style={{ display: "flex", flex: "1 0 auto" }}>
+              <InputLabel>Type</InputLabel>
+              <Select
+                value={column.type}
+                name="type"
+                onChange={handleTextFieldChange}
+              >
+                {colTypes.map(({ type, icon }) => (
+                  <MenuItem value={type} key={type}>
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      {icon}
+                      <Typography style={{ marginLeft: 8 }}>
+                        {titlefy(type)}
+                      </Typography>
+                    </div>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl
+              style={{
+                display: "flex",
+                flex: "0 1 auto",
+                width: "3.5rem",
+                marginLeft: 10,
+              }}
+            >
+              <TextField label="Length" name="length" type="number" />
+            </FormControl>
+          </FormGroup>
+        </ListItem>
+        <ListItem>
+          <TextField label="Default" name="default" size="small" fullWidth />
+        </ListItem>
+        <ListItem>
+          <FormGroup>
+            <ControlCheckbox
+              checked={column.pkey}
+              name="pkey"
+              handleCheckboxChange={handleCheckboxChange}
+              label="Primary key"
+              toggleCheckbox={toggleCheckbox}
+            />
+            <ControlCheckbox
+              checked={column.ai}
+              name="ai"
+              handleCheckboxChange={handleCheckboxChange}
+              label="Auto increment"
+              toggleCheckbox={toggleCheckbox}
+            />
+            <ControlCheckbox
+              checked={column.allowNull}
+              name="allowNull"
+              handleCheckboxChange={handleCheckboxChange}
+              label="Allow null"
+              toggleCheckbox={toggleCheckbox}
+            />
+            <ControlCheckbox
+              checked={column.unique}
+              name="unique"
+              handleCheckboxChange={handleCheckboxChange}
+              label="Unique"
+              toggleCheckbox={toggleCheckbox}
+            />
+            <ControlCheckbox
+              checked={column.fkey}
+              indeterminate={currColIsSource}
+              name="fk"
+              handleCheckboxChange={onFKeyChange}
+              label="Foreign key"
+              toggleCheckbox={toggleCheckbox}
+            />
+          </FormGroup>
+        </ListItem>
+        <ListItem alignItems="center" style={{ justifyContent: "center" }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={handleRemoveColumn}
+          >
+            Delete column
+          </Button>
+        </ListItem>
+      </List>
+    </HotKeys>
   );
 };
 export default ColumnControls;
