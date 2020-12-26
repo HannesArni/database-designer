@@ -53,6 +53,7 @@ const ControlCheckbox = ({
 };
 
 const keyMap = {
+  DO_NOTHING: "del",
   REMOVE_COLUMN: "Ctrl+del",
 };
 
@@ -89,6 +90,7 @@ const ColumnControls = ({ column, tableId, colId }) => {
   const keyMapHandlers = {
     REMOVE_COLUMN: (event) =>
       dispatch({ type: "removeColumn", tableId, colId }),
+    DO_NOTHING: () => {},
   };
 
   return (
@@ -185,7 +187,7 @@ const ColumnControls = ({ column, tableId, colId }) => {
               toggleCheckbox={toggleCheckbox}
             />
             <ControlCheckbox
-              checked={column.fkey}
+              checked={!!column.fkey}
               indeterminate={currColIsSource}
               name="fk"
               handleCheckboxChange={onFKeyChange}

@@ -30,6 +30,7 @@ import {
 } from "@material-ui/core/colors";
 import { memo } from "react";
 import { useTableDispatch } from "../../context/tables";
+import { IgnoreKeys } from "react-hotkeys";
 
 const TableControls = ({ table, tableId }) => {
   const theme = useTheme();
@@ -56,65 +57,68 @@ const TableControls = ({ table, tableId }) => {
   };
 
   return (
-    <List style={{ backgroundColor: theme.palette.background.paperAlt }}>
-      <ListItem>
-        <TextField
-          label="Table name"
-          value={table.name}
-          onChange={handleNameChange}
-          autoFocus
-        />
-      </ListItem>
-      <ListItem>
-        <FormControl style={{ display: "flex", flex: "1 0 auto" }}>
-          <InputLabel>Type</InputLabel>
-          <Select
-            name="type"
-            onChange={handleColorChange}
-            value={table.color ?? null}
+    <IgnoreKeys only="del">
+      <List style={{ backgroundColor: theme.palette.background.paperAlt }}>
+        <ListItem>
+          <TextField
+            label="Table name"
+            value={table.name}
+            onChange={handleNameChange}
+            autoFocus
+          />
+        </ListItem>
+        <ListItem>
+          <FormControl style={{ display: "flex", flex: "1 0 auto" }}>
+            <InputLabel>Type</InputLabel>
+            <Select
+              name="type"
+              onChange={handleColorChange}
+              value={table.color ?? null}
+            >
+              <MenuItem value={null}>Default</MenuItem>
+              {[
+                amber,
+                blue,
+                blueGrey,
+                brown,
+                cyan,
+                deepPurple,
+                deepOrange,
+                green,
+                indigo,
+                lime,
+                orange,
+                pink,
+                purple,
+                red,
+                teal,
+                yellow,
+              ].map((color) => (
+                <MenuItem value={color[200]} key={color[200]}>
+                  <Box
+                    style={{
+                      width: 10,
+                      height: 10,
+                      backgroundColor: color[200],
+                    }}
+                  />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </ListItem>
+        <ListItem alignItems="center" style={{ justifyContent: "center" }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={handleRemoveTable}
           >
-            {[
-              amber,
-              blue,
-              blueGrey,
-              brown,
-              cyan,
-              deepPurple,
-              deepOrange,
-              green,
-              indigo,
-              lime,
-              orange,
-              pink,
-              purple,
-              red,
-              teal,
-              yellow,
-            ].map((color) => (
-              <MenuItem value={color[200]} key={color[200]}>
-                <Box
-                  style={{
-                    width: 10,
-                    height: 10,
-                    backgroundColor: color[200],
-                  }}
-                />
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </ListItem>
-      <ListItem alignItems="center" style={{ justifyContent: "center" }}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          onClick={handleRemoveTable}
-        >
-          Delete table
-        </Button>
-      </ListItem>
-    </List>
+            Delete table
+          </Button>
+        </ListItem>
+      </List>
+    </IgnoreKeys>
   );
 };
 export default memo(TableControls);

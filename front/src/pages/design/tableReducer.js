@@ -146,7 +146,9 @@ const reducer = (state, action) => {
                 colId,
                 {
                   ...col,
-                  ...(col.fkey?.table === action.tableId ? { fkey: null } : {}),
+                  ...(col.fkey?.table === parseInt(action.tableId)
+                    ? { fkey: null }
+                    : {}),
                 },
               ]),
             },

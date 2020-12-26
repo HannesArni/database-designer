@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 
 const keyMap = {
   ADD_COLUMN: "alt+t",
-  REMOVE_TABLE: "shift+del",
+  REMOVE_TABLE: "del",
 };
 
 const Table = ({ id, data: table }) => {
