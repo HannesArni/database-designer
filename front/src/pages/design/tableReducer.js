@@ -108,8 +108,16 @@ const reducer = (state, action) => {
     };
   };
 
-  const getNextElementId = (dict) =>
-    Math.max(...Object.keys(dict).map((key) => parseInt(key))) + 1;
+  const changeEditing = (tableId, colId) => ({
+    ...state,
+    editing: { tableId, colId },
+  });
+
+  const getNextElementId = (dict) => {
+    const dictKeys = Object.keys(dict).map((key) => parseInt(key));
+    if (dictKeys.length) return Math.max(...dictKeys) + 1;
+    else return 1;
+  };
 
   switch (action.type) {
     case "setTable":
@@ -244,77 +252,78 @@ const reducer = (state, action) => {
     case "stopEditing":
       return { ...state, editing: {} };
     case "prevColumn":
-      if (!state.editing.colId || !state.editing.tableId) return state;
+      const tableIdsPrev = Object.keys(state.tables);
+      // if nothing is being edited, we edit the last column in the last table
+      if (!state.editing.colId || !state.editing.tableId) {
+        const lastTableId = tableIdsPrev[tableIdsPrev.length - 1];
+        const lastTableColumnIds = Object.keys(
+          state.tables[lastTableId].columns
+        );
+        return changeEditing(
+          lastTableId,
+          lastTableColumnIds[lastTableColumnIds.length - 1]
+        );
+      }
       const parsedColIdPrev = parseInt(state.editing.colId);
       const lowerIds = Object.keys(state.tables[state.editing.tableId].columns)
         .map((colId) => parseInt(colId))
         .filter((id) => id < parsedColIdPrev);
+      // if there are any colIds with lower indexes, we edit those
       if (lowerIds.length)
-        return {
-          ...state,
-          editing: {
-            ...state.editing,
-            colId: lowerIds[lowerIds.length - 1].toString(),
-          },
-        };
+        return changeEditing(
+          state.editing.tableId,
+          lowerIds[lowerIds.length - 1].toString()
+        );
+
       const parsedTableIdPrev = parseInt(state.editing.tableId);
-      const tableIds = Object.keys(state.tables);
-      const lowerTableIds = tableIds
+      const lowerTableIds = tableIdsPrev
         .map((tableId) => parseInt(tableId))
         .filter((id) => id < parsedTableIdPrev);
+      // If there are any lower tableIds
       if (lowerTableIds.length)
-        return {
-          ...state,
-          editing: {
-            tableId: lowerTableIds[lowerTableIds.length - 1].toString(),
-            colId: -1,
-          },
-        };
-      else
-        return {
-          ...state,
-          editing: {
-            tableId: tableIds[tableIds.length - 1],
-            colId: -1,
-          },
-        };
+        return changeEditing(
+          lowerTableIds[lowerTableIds.length - 1].toString(),
+          -1
+        );
+      else return changeEditing(tableIdsPrev[tableIdsPrev.length - 1], -1);
 
     case "nextColumn":
+    case "nextTable":
       let { colId, tableId } = state.editing;
-      if (!colId || !tableId) return state;
-      const parsedColId = parseInt(colId);
-      const higherIds = Object.keys(state.tables[tableId].columns)
-        .map((colId) => parseInt(colId))
-        .filter((id) => id > parsedColId);
-      if (higherIds.length)
-        return {
-          ...state,
-          editing: {
-            ...state.editing,
-            colId: higherIds[0].toString(),
-          },
-        };
+      const tableIdsNext = Object.keys(state.tables);
       const parsedTableId = parseInt(tableId);
       const higherTableIds = Object.keys(state.tables)
         .map((tableId) => parseInt(tableId))
         .filter((id) => id > parsedTableId);
-      if (higherTableIds.length)
-        return {
-          ...state,
-          editing: {
-            tableId: higherTableIds[0].toString(),
-            colId: -1,
-          },
-        };
-      else
-        return {
-          ...state,
-          editing: {
-            tableId: Object.keys(state.tables)[0],
-            colId: -1,
-          },
-        };
-
+      switch (action.type) {
+        case "nextColumn":
+          if (!colId || !tableId)
+            // edit the first table, first column
+            return changeEditing(
+              tableIdsNext[0],
+              Object.keys(state.tables[tableIdsNext[0]].columns)[0]
+            );
+          const parsedColId = parseInt(colId);
+          const higherIds = Object.keys(state.tables[tableId].columns)
+            .map((colId) => parseInt(colId))
+            .filter((id) => id > parsedColId);
+          if (higherIds.length)
+            return changeEditing(
+              state.editing.tableId,
+              higherIds[0].toString()
+            );
+          if (higherTableIds.length)
+            return changeEditing(higherTableIds[0].toString(), -1);
+          else return changeEditing(Object.keys(state.tables)[0], -1);
+        case "nextTable":
+          // if no table's selected, we select the first table
+          if (!state.editing.tableId) return changeEditing(tableIdsNext[0], -1);
+          if (higherTableIds.length)
+            return changeEditing(higherTableIds[0].toString(), -1);
+          else return changeEditing(tableIdsNext[0], -1);
+        default:
+          throw new Error();
+      }
     default:
       throw new Error();
   }

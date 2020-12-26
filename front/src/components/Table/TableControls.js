@@ -73,9 +73,9 @@ const TableControls = ({ table, tableId }) => {
             <Select
               name="type"
               onChange={handleColorChange}
-              value={table.color ?? null}
+              value={table.color ?? ""}
             >
-              <MenuItem value={null}>Default</MenuItem>
+              <MenuItem value={""}>Default</MenuItem>
               {[
                 amber,
                 blue,

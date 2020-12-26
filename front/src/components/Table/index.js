@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const keyMap = {
-  ADD_COLUMN: "alt+t",
+  ADD_COLUMN: "alt+n",
   REMOVE_TABLE: "del",
 };
 
@@ -76,17 +76,19 @@ const Table = ({ id, data: table }) => {
               {name.length ? name : "\u00A0"}
             </ListSubheader>
           }
+          tabIndex={parseInt(id)}
         >
           <Collapse in={table.editing === -1} unmountOnExit className="nodrag">
             <TableControls table={table} tableId={id} />
           </Collapse>
-          {Object.keys(columns).map((colId) => (
+          {Object.keys(columns).map((colId, index) => (
             <TableColumn
               editing={table.editing === colId}
               column={columns[colId]}
               colId={colId}
               key={colId}
               tableId={id}
+              tabIndex={index}
             />
           ))}
           <Box className={classes.addBox}>
