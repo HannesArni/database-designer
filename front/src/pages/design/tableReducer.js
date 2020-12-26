@@ -241,8 +241,44 @@ const reducer = (state, action) => {
       };
     case "stopEditing":
       return { ...state, editing: {} };
+    case "prevColumn":
+      if (!state.editing.colId || !state.editing.tableId) return state;
+      const parsedColIdPrev = parseInt(state.editing.colId);
+      const lowerIds = Object.keys(state.tables[state.editing.tableId].columns)
+        .map((colId) => parseInt(colId))
+        .filter((id) => id < parsedColIdPrev);
+      if (lowerIds.length)
+        return {
+          ...state,
+          editing: {
+            ...state.editing,
+            colId: lowerIds[lowerIds.length - 1].toString(),
+          },
+        };
+      const parsedTableIdPrev = parseInt(state.editing.tableId);
+      const tableIds = Object.keys(state.tables);
+      const lowerTableIds = tableIds
+        .map((tableId) => parseInt(tableId))
+        .filter((id) => id < parsedTableIdPrev);
+      if (lowerTableIds.length)
+        return {
+          ...state,
+          editing: {
+            tableId: lowerTableIds[lowerTableIds.length - 1].toString(),
+            colId: -1,
+          },
+        };
+      else
+        return {
+          ...state,
+          editing: {
+            tableId: tableIds[tableIds.length - 1],
+            colId: -1,
+          },
+        };
+
     case "nextColumn":
-      const { colId, tableId } = state.editing;
+      let { colId, tableId } = state.editing;
       if (!colId || !tableId) return state;
       const parsedColId = parseInt(colId);
       const higherIds = Object.keys(state.tables[tableId].columns)

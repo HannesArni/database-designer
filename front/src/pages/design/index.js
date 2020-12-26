@@ -54,8 +54,9 @@ const edgeTypes = {
 
 const keyMap = {
   STOP_EDITING: "Escape",
-  ADD_TABLE: "alt+t",
-  NEXT_COLUMN: "Ctrl+shift+down",
+  ADD_TABLE: "alt+shift+t",
+  PREV_COLUMN: "shift+up",
+  NEXT_COLUMN: "shift+down",
 };
 
 const snapGrid = [15, 15];
@@ -124,7 +125,8 @@ function Designer() {
     STOP_EDITING: () => {
       dispatch({ type: "stopEditing" });
     },
-    ADD_TABLE: (event) => dispatch({ type: "addTable", xPos: 100, yPos: 100 }),
+    ADD_TABLE: () => dispatch({ type: "addTable", xPos: 100, yPos: 100 }),
+    PREV_COLUMN: () => dispatch({ type: "prevColumn" }),
     NEXT_COLUMN: () => dispatch({ type: "nextColumn" }),
   };
 

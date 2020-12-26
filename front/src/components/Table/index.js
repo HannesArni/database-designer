@@ -40,6 +40,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const keyMap = {
+  ADD_COLUMN: "alt+t",
+  REMOVE_TABLE: "shift+del",
+};
+
 const Table = ({ id, data: table }) => {
   const { columns, name } = table;
   const dispatch = useTableDispatch();
@@ -52,41 +57,47 @@ const Table = ({ id, data: table }) => {
   }, [id, dispatch]);
 
   const classes = useStyles();
+  const keyMapHandlers = {
+    ADD_COLUMN: handleAddColumn,
+    REMOVE_TABLE: () => dispatch({ type: "removeTable", tableId: id }),
+  };
   return (
     <>
-      {FKSource && <div className={classes.fkSelectionBg} />}
-      <List
-        className={classes.root}
-        subheader={
-          <ListSubheader
-            className={classes.listSubHeader}
-            style={{ backgroundColor: table.color }}
-            onDoubleClick={toggleEditingTable}
-          >
-            {name.length ? name : "\u00A0"}
-          </ListSubheader>
-        }
-      >
-        <Collapse in={table.editing === -1} unmountOnExit className="nodrag">
-          <TableControls table={table} tableId={id} />
-        </Collapse>
-        {Object.keys(columns).map((colId) => (
-          <TableColumn
-            editing={table.editing === colId}
-            column={columns[colId]}
-            colId={colId}
-            key={colId}
-            tableId={id}
-          />
-        ))}
-        <Box className={classes.addBox}>
-          <Add
-            fontSize={"small"}
-            className={`${classes.add} nodrag`}
-            onClick={handleAddColumn}
-          />
-        </Box>
-      </List>
+      <HotKeys keyMap={keyMap} handlers={keyMapHandlers}>
+        {FKSource && <div className={classes.fkSelectionBg} />}
+        <List
+          className={classes.root}
+          subheader={
+            <ListSubheader
+              className={classes.listSubHeader}
+              style={{ backgroundColor: table.color }}
+              onDoubleClick={toggleEditingTable}
+            >
+              {name.length ? name : "\u00A0"}
+            </ListSubheader>
+          }
+        >
+          <Collapse in={table.editing === -1} unmountOnExit className="nodrag">
+            <TableControls table={table} tableId={id} />
+          </Collapse>
+          {Object.keys(columns).map((colId) => (
+            <TableColumn
+              editing={table.editing === colId}
+              column={columns[colId]}
+              colId={colId}
+              key={colId}
+              tableId={id}
+            />
+          ))}
+          <Box className={classes.addBox}>
+            <Add
+              fontSize={"small"}
+              className={`${classes.add} nodrag`}
+              onClick={handleAddColumn}
+            />
+          </Box>
+        </List>
+      </HotKeys>
     </>
   );
 };
