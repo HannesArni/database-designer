@@ -6,6 +6,8 @@ import {
   useMediaQuery,
 } from "@material-ui/core";
 import { green, teal } from "@material-ui/core/colors";
+import { ReactFlowProvider } from "react-flow-renderer";
+import { TableDispatchContext } from "./context/tables";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -15,7 +17,7 @@ function App() {
       palette: {
         primary: {
           // Purple and green play nicely together.
-          main: teal[200],
+          main: teal[300],
           contrastText: "#151515",
         },
         secondary: {
@@ -50,7 +52,9 @@ function App() {
   }, [prefersDarkMode]);
   return (
     <MuiThemeProvider theme={theme}>
-      <Designer />
+      <ReactFlowProvider>
+        <Designer />
+      </ReactFlowProvider>
     </MuiThemeProvider>
   );
 }

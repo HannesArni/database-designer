@@ -94,12 +94,12 @@ const TableControls = ({ table, tableId }) => {
                 teal,
                 yellow,
               ].map((color) => (
-                <MenuItem value={color[200]} key={color[200]}>
+                <MenuItem value={color[300]} key={color[200]}>
                   <Box
                     style={{
                       width: 10,
                       height: 10,
-                      backgroundColor: color[200],
+                      backgroundColor: color[300],
                     }}
                   />
                 </MenuItem>

@@ -2,11 +2,20 @@ import ReactFlow, {
   MiniMap,
   Background,
   ReactFlowProvider,
+  useStoreState,
 } from "react-flow-renderer";
 import ContextMenu from "../../components/ContextMenu";
 import Table from "../../components/Table";
 import { useState, useEffect } from "react";
-import { makeStyles, Typography } from "@material-ui/core";
+import {
+  makeStyles,
+  Typography,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+} from "@material-ui/core";
+import { Inbox } from "@material-ui/icons";
 import { TableDispatchContext, FKContext } from "../../context/tables";
 import TableEdge from "../../components/CustomEdge/TableEdge";
 import useTableReducer from "./tableReducer";
@@ -131,9 +140,20 @@ function Designer() {
     NEXT_COLUMN: () => dispatch({ type: "nextColumn" }),
     NEXT_TABLE: () => dispatch({ type: "nextTable" }),
   };
+  const transform = useStoreState((store) => store.transform);
+  console.log(transform);
 
   return (
-    <ReactFlowProvider>
+    <>
+      {/*<Drawer variant="permanent" style={{ maxWidth: 140, overflow: "hidden" }}>*/}
+      {/*  <List>*/}
+      {/*    <ListItem button>*/}
+      {/*      <ListItemIcon>*/}
+      {/*        <Inbox />*/}
+      {/*      </ListItemIcon>*/}
+      {/*    </ListItem>*/}
+      {/*  </List>*/}
+      {/*</Drawer>*/}
       <GlobalHotKeys keyMap={keyMap} handlers={keyMapHandlers} />
       <TableDispatchContext.Provider value={dispatch}>
         <FKContext.Provider value={state.FKSource}>
@@ -169,7 +189,7 @@ function Designer() {
           </ReactFlow>
         </FKContext.Provider>
       </TableDispatchContext.Provider>
-    </ReactFlowProvider>
+    </>
   );
 }
 
