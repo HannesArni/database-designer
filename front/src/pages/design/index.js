@@ -1,7 +1,6 @@
 import ReactFlow, {
   MiniMap,
   Background,
-  ReactFlowProvider,
   useStoreState,
 } from "react-flow-renderer";
 import ContextMenu from "../../components/ContextMenu";
@@ -13,13 +12,14 @@ import {
   Drawer,
   List,
   ListItem,
-  ListItemIcon,
+  Tooltip,
 } from "@material-ui/core";
-import { Inbox } from "@material-ui/icons";
+import { Publish, GetApp, Settings } from "@material-ui/icons";
 import { TableDispatchContext, FKContext } from "../../context/tables";
 import TableEdge from "../../components/CustomEdge/TableEdge";
 import useTableReducer from "./tableReducer";
 import { GlobalHotKeys } from "react-hotkeys";
+import ImportDialog from "./import";
 
 const useStyles = makeStyles((theme) => ({
   flowBackground: {
@@ -75,6 +75,9 @@ const defaultPosition = [0, 0];
 function Designer() {
   const classes = useStyles();
   const [elements, setElements] = useState([]);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const openImportDialog = () => setImportDialogOpen(true);
+  const closeImportDialog = () => setImportDialogOpen(false);
 
   const [state, dispatch] = useTableReducer();
 
@@ -141,21 +144,26 @@ function Designer() {
     NEXT_TABLE: () => dispatch({ type: "nextTable" }),
   };
   const transform = useStoreState((store) => store.transform);
-  console.log(transform);
 
   return (
     <>
-      {/*<Drawer variant="permanent" style={{ maxWidth: 140, overflow: "hidden" }}>*/}
-      {/*  <List>*/}
-      {/*    <ListItem button>*/}
-      {/*      <ListItemIcon>*/}
-      {/*        <Inbox />*/}
-      {/*      </ListItemIcon>*/}
-      {/*    </ListItem>*/}
-      {/*  </List>*/}
-      {/*</Drawer>*/}
+      <Drawer variant="permanent">
+        <List>
+          <Tooltip title="Import" placement="right">
+            <ListItem button onClick={openImportDialog}>
+              <Publish title="Import" />
+            </ListItem>
+          </Tooltip>
+          <Tooltip title="Download" placement="right">
+            <ListItem button>
+              <GetApp />
+            </ListItem>
+          </Tooltip>
+        </List>
+      </Drawer>
       <GlobalHotKeys keyMap={keyMap} handlers={keyMapHandlers} />
       <TableDispatchContext.Provider value={dispatch}>
+        <ImportDialog open={importDialogOpen} onClose={closeImportDialog} />
         <FKContext.Provider value={state.FKSource}>
           <ReactFlow
             elements={elements}

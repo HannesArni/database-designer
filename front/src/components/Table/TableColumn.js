@@ -89,8 +89,7 @@ const TableColumn = ({ editing, column, colId, tableId }) => {
             className={classes.icon}
           />
         )}
-        {column.type &&
-          colTypes.filter(({ type }) => type === column.type)[0].icon}
+        {column.type && colTypes.find(({ type }) => type === column.type)?.icon}
         <Handle
           id={`i${colId}r`}
           position="right"

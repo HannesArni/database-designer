@@ -1,7 +1,8 @@
 import { useReducer } from "react";
 import { useStoreState } from "react-flow-renderer";
 
-const initalTableState = {
+const initalTableState = { tables: {}, editing: {} };
+const initialTableStateAlt = {
   tables: {
     1: {
       name: "columns",
@@ -74,6 +75,31 @@ const initalTableState = {
   },
   editing: {},
 };
+
+const typeMapper = {
+  int: "INTEGER",
+  varchar: "STRING",
+  datetime: "DATE",
+  date: "DATEONLY",
+  time: "TIME",
+  timestamp: "DATE",
+  boolean: "BOOLEAN",
+  double: "DOUBLE",
+  json: "JSONTYPE",
+  text: "TEXT",
+  enum: "ENUM",
+  char: "CHAR",
+  float: "FLOAT",
+};
+
+const optionMapper = {
+  nullable: "allowNull",
+  autoincrement: "ai",
+  unsigned: "unsigned",
+  default: "default",
+  collation: "collation",
+};
+
 const reducer = (state, action) => {
   const changeTable = (newValue, tableId = action.tableId) => ({
     ...state,
@@ -120,6 +146,15 @@ const reducer = (state, action) => {
     else return 1;
   };
 
+  const findTableByName = (name) => {
+    return Object.entries(state.tables).find(([_, table]) => {
+      return table.name === name;
+    });
+  };
+  const findColByName = (table, name) => {
+    return Object.entries(table.columns).find(([_, col]) => col.name === name);
+  };
+
   switch (action.type) {
     case "setTable":
       return changeTable(action.newValue);
@@ -138,6 +173,117 @@ const reducer = (state, action) => {
         ),
         editing: { tableId: nextId.toString(), colId: -1 },
       };
+    case "importFromCompactJson":
+      let allFkeys = [];
+      const newTables = {};
+      action.tables.forEach((table) => {
+        const tableIndex = getNextElementId({ ...state.tables, ...newTables });
+
+        const pkeyNames = table.primaryKey?.columns.map((col) => col.column);
+        const uniquekeyNames = table.uniqueKeys?.map((col) => col.column);
+
+        const fkeys = table.foreignKeys?.map((fkey) => ({
+          reference: {
+            table: fkey.reference.table,
+            column: fkey.reference.columns[0].column,
+          },
+          source: { table: tableIndex, column: fkey.columns[0].column },
+        }));
+
+        // change the columns from the old format to {id: column} according to the reducer structure
+        const cols = Object.fromEntries(
+          table.columns.map(({ type, name, options }, index) => {
+            // Filters to remind me to add missing types
+            if (!Object.keys(typeMapper).includes(type.datatype))
+              throw `Add type ${type.datatype} into typeMapper`;
+            if (
+              Object.keys(options).some(
+                (key) => !Object.keys(optionMapper).includes(key)
+              )
+            )
+              throw `Add option ${Object.keys(options)} into optionMapper`;
+
+            // remap options
+            options = Object.map(options, ([key, val]) => [
+              optionMapper[key],
+              val,
+            ]);
+            if ("collation" in options) {
+              delete options.collation;
+            }
+
+            // look for matching fkey
+            const matchingFkeyIndex = fkeys?.findIndex(
+              (fkey) => fkey.source.column === name
+            );
+            if (!isNaN(matchingFkeyIndex) && matchingFkeyIndex !== -1)
+              fkeys[matchingFkeyIndex].source.column = index + 1;
+
+            return [
+              index + 1,
+              {
+                name,
+                ...options,
+                type: typeMapper[type.datatype],
+                pkey: pkeyNames?.includes(name),
+                unique: uniquekeyNames?.includes(name) ?? false,
+              },
+            ];
+          })
+        );
+        if (fkeys) allFkeys = [...allFkeys, ...fkeys];
+        newTables[tableIndex] = {
+          name: table.name,
+          columns: cols,
+          position: { x: Math.random() * 5000, y: Math.random() * 1000 },
+        };
+      });
+      allFkeys.forEach(({ reference, source }) => {
+        const referenceTable = Object.entries(newTables).find(([_, table]) => {
+          return table.name === reference.table;
+        });
+        if (!referenceTable) return;
+        const referenceColumn = findColByName(
+          referenceTable[1],
+          reference.column
+        );
+        newTables[source.table].columns[source.column].fkey = {
+          table: referenceTable[0],
+          column: referenceColumn[0],
+        };
+      });
+      console.log(newTables);
+      return {
+        ...state,
+        tables: {
+          ...state.tables,
+          ...newTables,
+        },
+      };
+
+    case "addFkeySilent":
+      const sourceTable = findTableByName(action.source.table);
+      if (!sourceTable) return state;
+      action.source = {
+        table: parseInt(sourceTable[0]),
+        column: parseInt(
+          findColByName(sourceTable[1], action.source.column)[0]
+        ),
+      };
+      const referenceTable = findTableByName(action.reference.table);
+      action.reference = {
+        table: parseInt(referenceTable[0]),
+        column: parseInt(
+          findColByName(referenceTable[1], action.reference.column)[0]
+        ),
+      };
+      const changedState = changeColumn(
+        { fkey: { ...action.reference } },
+        action.source.table,
+        action.source.column
+      );
+      return { ...changedState };
+
     case "removeTable":
       // first, remove the table. Then, iterate through 'em all and remove FKs referencing the table
       return {
