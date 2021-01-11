@@ -1,8 +1,8 @@
 import { useReducer } from "react";
 import { useStoreState } from "react-flow-renderer";
 
-const initalTableState = { tables: {}, editing: {} };
-const initialTableStateAlt = {
+const initalTableStates = { tables: {}, editing: {} };
+const initalTableState = {
   tables: {
     1: {
       name: "columns",
@@ -34,7 +34,7 @@ const initialTableStateAlt = {
           allowNull: true,
         },
       },
-      position: { x: 100, y: 100 },
+      position: { x: 150, y: 100 },
     },
     2: {
       name: "tables",
@@ -90,6 +90,7 @@ const typeMapper = {
   enum: "ENUM",
   char: "CHAR",
   float: "FLOAT",
+  year: "DATEONLY",
 };
 
 const optionMapper = {
@@ -98,6 +99,7 @@ const optionMapper = {
   unsigned: "unsigned",
   default: "default",
   collation: "collation",
+  onUpdate: "onUpdate",
 };
 
 const reducer = (state, action) => {
@@ -210,6 +212,9 @@ const reducer = (state, action) => {
             ]);
             if ("collation" in options) {
               delete options.collation;
+            }
+            if ("onUpdate" in options) {
+              delete options.onUpdate;
             }
 
             // look for matching fkey
