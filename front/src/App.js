@@ -7,7 +7,6 @@ import {
 } from "@material-ui/core";
 import { green, teal } from "@material-ui/core/colors";
 import { ReactFlowProvider } from "react-flow-renderer";
-import { TableDispatchContext } from "./context/tables";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -45,6 +44,13 @@ function App() {
       MuiFormControlLabel: {
         root: {
           color: theme.palette.text.secondary,
+        },
+      },
+      MuiSelect: {
+        root: {
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
         },
       },
     };

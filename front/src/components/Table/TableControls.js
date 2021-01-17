@@ -10,24 +10,7 @@ import {
   Box,
   Button,
 } from "@material-ui/core";
-import {
-  amber,
-  blue,
-  blueGrey,
-  brown,
-  cyan,
-  deepOrange,
-  deepPurple,
-  green,
-  indigo,
-  lime,
-  orange,
-  pink,
-  purple,
-  red,
-  teal,
-  yellow,
-} from "@material-ui/core/colors";
+import { colorMapper } from "../../constants";
 import { memo } from "react";
 import { useTableDispatch } from "../../context/tables";
 import { IgnoreKeys } from "react-hotkeys";
@@ -76,32 +59,17 @@ const TableControls = ({ table, tableId }) => {
               value={table.color ?? ""}
             >
               <MenuItem value={""}>Default</MenuItem>
-              {[
-                amber,
-                blue,
-                blueGrey,
-                brown,
-                cyan,
-                deepPurple,
-                deepOrange,
-                green,
-                indigo,
-                lime,
-                orange,
-                pink,
-                purple,
-                red,
-                teal,
-                yellow,
-              ].map((color) => (
-                <MenuItem value={color[300]} key={color[200]}>
+              {Object.keys(colorMapper).map((color) => (
+                <MenuItem value={color} key={colorMapper[color][300]}>
                   <Box
                     style={{
                       width: 10,
                       height: 10,
-                      backgroundColor: color[300],
+                      backgroundColor: colorMapper[color][300],
+                      marginRight: 10,
                     }}
                   />
+                  {color}
                 </MenuItem>
               ))}
             </Select>

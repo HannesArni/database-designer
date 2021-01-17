@@ -12,6 +12,24 @@ import {
   Today,
 } from "@material-ui/icons";
 import { Hashtag } from "./components/Icons";
+import {
+  amber,
+  blue,
+  blueGrey,
+  brown,
+  cyan,
+  deepOrange,
+  deepPurple,
+  green,
+  indigo,
+  lime,
+  orange,
+  pink,
+  purple,
+  red,
+  teal,
+  yellow,
+} from "@material-ui/core/colors";
 
 export const colTypes = [
   { type: "STRING", icon: <ShortText fontSize="inherit" /> },
@@ -49,3 +67,22 @@ export const colTypes = [
   { type: "GEOMETRY", icon: <Language fontSize="inherit" /> },
   { type: "GEOGRAPHY", icon: <Language fontSize="inherit" /> },
 ];
+
+export const colorMapper = {
+  green: green,
+  teal: teal,
+  cyan: cyan,
+  blue: blue,
+  blueGrey: blueGrey,
+  indigo: indigo,
+  deepPurple: deepPurple,
+  purple: purple,
+  pink: pink,
+  red: red,
+  brown: brown,
+  deepOrange: deepOrange,
+  orange: orange,
+  amber: amber,
+  yellow: yellow,
+  lime: lime,
+};
