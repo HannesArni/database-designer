@@ -113,6 +113,7 @@ function Designer() {
         }
       });
     });
+    console.log('fkeys', elFkeys)
     setElements([...elTables, ...elFkeys]);
   }, [state]);
 

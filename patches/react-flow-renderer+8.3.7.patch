@@ -1,22 +1,16 @@
 diff --git a/node_modules/react-flow-renderer/dist/ReactFlow.esm.js b/node_modules/react-flow-renderer/dist/ReactFlow.esm.js
-index 0e66530..43c86e3 100644
+index 37b2a27..2c977d3 100644
 --- a/node_modules/react-flow-renderer/dist/ReactFlow.esm.js
 +++ b/node_modules/react-flow-renderer/dist/ReactFlow.esm.js
-@@ -8542,7 +8542,7 @@ var getSourceTargetNodes = function (edge, nodes) {
-         if (node.id === edge.source) {
-             res.sourceNode = node;
-         }
--        else if (node.id === edge.target) {
-+        if (node.id === edge.target) {
-             res.targetNode = node;
-         }
-         return res;
-@@ -8571,8 +8571,39 @@ var Edge = function (_a) {
-     }
-     var edgeType = edge.type || 'default';
-     var EdgeComponent = props.edgeTypes[edgeType] || props.edgeTypes.default;
+@@ -8573,8 +8573,45 @@ var Edge = function (_a) {
+     var targetNodeHandles = connectionMode === ConnectionMode.Strict
+         ? targetNodeBounds.target
+         : targetNodeBounds.target || targetNodeBounds.source;
 -    var sourceHandle = getHandle(sourceNode.__rf.handleBounds.source, sourceHandleId);
--    var targetHandle = getHandle(targetNode.__rf.handleBounds.target, targetHandleId);
+-    var targetHandle = getHandle(targetNodeHandles, targetHandleId);
++
++    // begin custom stuff (HannesArni)
++
 +    const sourceNodeX = sourceNode.__rf.position.x;
 +    const targetNodeX = targetNode.__rf.position.x;
 +    var sourceHandleSide, targetHandleSide;
@@ -50,28 +44,25 @@ index 0e66530..43c86e3 100644
 +    }
 +    var sourceHandle = getHandle(sourceNode.__rf.handleBounds.source, `o${sourceHandleId}${sourceHandleSide}`);
 +    var targetHandle = getHandle(targetNode.__rf.handleBounds.target, `i${targetHandleId}${targetHandleSide}`);
++
++    // end custom stuff (HannesArni)
++
      var sourcePosition = sourceHandle ? sourceHandle.position : Position.Bottom;
      var targetPosition = targetHandle ? targetHandle.position : Position.Top;
      if (!sourceHandle) {
 diff --git a/node_modules/react-flow-renderer/dist/ReactFlow.js b/node_modules/react-flow-renderer/dist/ReactFlow.js
-index d779ab3..c7bebf0 100644
+index 5ad8e54..581a9d6 100644
 --- a/node_modules/react-flow-renderer/dist/ReactFlow.js
 +++ b/node_modules/react-flow-renderer/dist/ReactFlow.js
-@@ -8545,7 +8545,7 @@ var getSourceTargetNodes = function (edge, nodes) {
-         if (node.id === edge.source) {
-             res.sourceNode = node;
-         }
--        else if (node.id === edge.target) {
-+        if (node.id === edge.target) {
-             res.targetNode = node;
-         }
-         return res;
-@@ -8574,8 +8574,39 @@ var Edge = function (_a) {
-     }
-     var edgeType = edge.type || 'default';
-     var EdgeComponent = props.edgeTypes[edgeType] || props.edgeTypes.default;
+@@ -8576,8 +8576,45 @@ var Edge = function (_a) {
+     var targetNodeHandles = connectionMode === exports.ConnectionMode.Strict
+         ? targetNodeBounds.target
+         : targetNodeBounds.target || targetNodeBounds.source;
 -    var sourceHandle = getHandle(sourceNode.__rf.handleBounds.source, sourceHandleId);
--    var targetHandle = getHandle(targetNode.__rf.handleBounds.target, targetHandleId);
+-    var targetHandle = getHandle(targetNodeHandles, targetHandleId);
++
++    // begin custom stuff (HannesArni)
++
 +    const sourceNodeX = sourceNode.__rf.position.x;
 +    const targetNodeX = targetNode.__rf.position.x;
 +    var sourceHandleSide, targetHandleSide;
@@ -105,6 +96,9 @@ index d779ab3..c7bebf0 100644
 +    }
 +    var sourceHandle = getHandle(sourceNode.__rf.handleBounds.source, `o${sourceHandleId}${sourceHandleSide}`);
 +    var targetHandle = getHandle(targetNode.__rf.handleBounds.target, `i${targetHandleId}${targetHandleSide}`);
++
++    // end custom stuff (HannesArni)
++
      var sourcePosition = sourceHandle ? sourceHandle.position : exports.Position.Bottom;
      var targetPosition = targetHandle ? targetHandle.position : exports.Position.Top;
      if (!sourceHandle) {
