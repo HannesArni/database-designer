@@ -4,7 +4,7 @@
   "scripts": {
     "format": "prettier --write \"**/*.{js,ts,tsx}\" --ignore-path .gitignore",
     "lint": "eslint api front",
-    "quiet-lint": "eslint api front --quiet",
+    "quiet-lint": "eslint front --quiet",
     "postinstall": "patch-package"
   },
   "workspaces": [
