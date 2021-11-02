@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+generator typegraphql {
+  provider = "typegraphql-prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  gtoken String?
+  projects Project[]
+}
+
+model Project {
+  id     Int     @id @default(autoincrement())
+  name   String
+  tables Table[]
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+model Table {
+  id        Int      @id @default(autoincrement())
+  name      String?
+  color     String?
+  xPos      Int
+  yPos      Int
+  columns   Column[]
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId Int
+}
+
+model Column {
+  id             Int      @id @default(autoincrement())
+  name           String?
+  type           String
+  length         Int?
+  default        String?
+  pkey           Boolean  @default(false)
+  ai             Boolean  @default(false)
+  allowNull      Boolean  @default(false)
+  parentColumn   Column?  @relation("ColumnFkey", fields: [parentColumnId], references: [id])
+  childColumns   Column[] @relation("ColumnFkey")
+  table          Table    @relation(fields: [tableId], references: [id])
+  tableId        Int
+  parentColumnId Int?
+}
