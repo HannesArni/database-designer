@@ -3,76 +3,75 @@ import { useStoreState } from "react-flow-renderer";
 
 const initalTableStates = { tables: {}, editing: {} };
 const initalTableState = {
-  tables: {
-    1: {
+  tables: [
+    {
       name: "columns",
-      columns: {
-        1: {
+      columns: [
+        {
           name: "id",
           type: "INTEGER",
           pkey: true,
           ai: true,
           allowNull: true,
         },
-        2: {
+        {
           name: "tableId",
           type: "INTEGER",
           fkey: { table: 2, column: 1 },
           allowNull: true,
         },
-        3: { name: "name", type: "STRING", allowNull: true },
-        4: { name: "type", type: "ENUM", allowNull: true },
-        5: { name: "length", type: "INTEGER", allowNull: true },
-        6: { name: "default", type: "STRING", allowNull: true },
-        7: { name: "pkey", type: "BOOLEAN", allowNull: true },
-        8: { name: "ai", type: "BOOLEAN", allowNull: true },
-        9: { name: "allowNull", type: "BOOLEAN", allowNull: true },
-        10: {
+        { name: "name", type: "STRING", allowNull: true },
+        { name: "type", type: "ENUM", allowNull: true },
+        { name: "length", type: "INTEGER", allowNull: true },
+        { name: "default", type: "STRING", allowNull: true },
+        { name: "pkey", type: "BOOLEAN", allowNull: true },
+        { name: "ai", type: "BOOLEAN", allowNull: true },
+        { name: "allowNull", type: "BOOLEAN", allowNull: true },
+        {
           name: "fkey",
           type: "INTEGER",
           fkey: { table: 1, column: 1 },
           allowNull: true,
         },
-      },
+      ],
       position: { x: 150, y: 100 },
     },
-    2: {
+    {
       name: "tables",
-      columns: {
-        1: {
+      columns: [
+        {
           name: "id",
           type: "INTEGER",
           pkey: true,
           ai: true,
           allowNull: true,
         },
-        2: {
+        {
           name: "name",
           type: "STRING",
           allowNull: true,
         },
-        3: {
+        {
           name: "color",
           type: "STRING",
           allowNull: true,
         },
-        4: {
+        {
           name: "xPos",
           type: "INTEGER",
           allowNull: true,
         },
-        5: {
+        {
           name: "yPos",
           type: "INTEGER",
           allowNull: true,
-        },
-      },
+        },],
       position: {
         x: 600,
         y: 300,
       },
     },
-  },
+  ],
   editing: {},
 };
 
