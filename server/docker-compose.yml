@@ -1,0 +1,12 @@
+version: '3.1'
+
+services:
+  database-designer-db:
+    image: postgres
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_TEST_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432

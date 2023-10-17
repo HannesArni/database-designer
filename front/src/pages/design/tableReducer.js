@@ -1,7 +1,6 @@
 import { useReducer } from "react";
-import { useStoreState } from "react-flow-renderer";
 
-const initalTableStates = { tables: {}, editing: {} };
+// const initalTableStates = { tables: {}, editing: {} };
 const initalTableState = {
   tables: [
     {
