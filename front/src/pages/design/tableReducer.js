@@ -265,6 +265,9 @@ const reducer = (state, action) => {
         },
       };
 
+    case "setJson":
+      return action.newValue;
+
     case "addFkeySilent":
       const sourceTable = findTableByName(action.source.table);
       if (!sourceTable) return state;

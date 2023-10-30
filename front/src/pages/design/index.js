@@ -82,8 +82,19 @@ function Designer() {
   const [state, dispatch] = useTableReducer();
 
   useEffect(() => {
+    const loadedItems = localStorage.getItem('tables');
+    if(loadedItems){
+      dispatch({
+        type: 'setJson',
+        newValue: {tables: JSON.parse(loadedItems), editing: {}}
+      })
+    }
+  }, [])
+
+  useEffect(() => {
     const elTables = [];
     const elFkeys = [];
+    localStorage.setItem('tables', JSON.stringify(state.tables));
     Object.keys(state.tables).forEach((tableId) => {
       let table = state.tables[tableId];
       if (!table) return;
@@ -172,6 +183,9 @@ function Designer() {
             edgeTypes={edgeTypes}
             snapGrid={snapGrid}
             defaultPosition={defaultPosition}
+            onNodeDragStop={(e, node) => {
+              dispatch({type: 'setTable', tableId: node.id, newValue: {position: node.position}})
+            }}
           >
             <MiniMap className={classes.miniMap} />
             <Background className={classes.flowBackground} />
