@@ -14,7 +14,7 @@ import {
   ListItem,
   Tooltip,
 } from "@material-ui/core";
-import { Publish, GetApp, Settings } from "@material-ui/icons";
+import { Publish, GetApp, FileCopy } from "@material-ui/icons";
 import { TableDispatchContext, FKContext } from "../../context/tables";
 import TableEdge from "../../components/CustomEdge/TableEdge";
 import useTableReducer from "./tableReducer";
@@ -82,13 +82,27 @@ function Designer() {
   const [state, dispatch] = useTableReducer();
 
   useEffect(() => {
-    const loadedItems = localStorage.getItem('tables');
-    if(loadedItems){
-      dispatch({
-        type: 'setJson',
-        newValue: {tables: JSON.parse(loadedItems), editing: {}}
-      })
+    const urlSearchString = window.location.search;
+    const params = new URLSearchParams(urlSearchString);
+    const getTables = params.get('tables')
+    if(getTables){
+      window.location.href = window.location.origin;
+      try{
+        const parsedGetTables = JSON.parse(getTables);
+        dispatch({type: 'setJson', newValue: {tables: parsedGetTables, editing: {}}})
+      } catch(e){
+        console.log('Failed loading tables from url', e)
+      }
+    } else {
+      const loadedItems = localStorage.getItem('tables');
+      if(loadedItems){
+        dispatch({
+          type: 'setJson',
+          newValue: {tables: JSON.parse(loadedItems), editing: {}}
+        })
+      }
     }
+
   }, [])
 
   useEffect(() => {
@@ -156,6 +170,13 @@ function Designer() {
   };
   const transform = useStoreState((store) => store.transform);
 
+  const generateAndCopyLink = () => {
+    const searchParams = new URLSearchParams();
+    searchParams.set('tables', JSON.stringify(state.tables));
+    navigator.clipboard.writeText(window.location.origin + '?' + searchParams.toString())
+      .catch(e => console.log('failed writing to clipboard'))
+  }
+
   return (
     <>
       <Drawer variant="permanent">
@@ -168,6 +189,11 @@ function Designer() {
           <Tooltip title="Download" placement="right">
             <ListItem button>
               <GetApp />
+            </ListItem>
+          </Tooltip>
+          <Tooltip title="Copy link" placement="right">
+            <ListItem button onClick={generateAndCopyLink}>
+              <FileCopy />
             </ListItem>
           </Tooltip>
         </List>
